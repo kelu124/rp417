@@ -1,7 +1,6 @@
 # TODO
 
 ## Open questions (user)
-- [ ] Triangle waveform: AD9851 only does sine/square — add a second generator / DAC, or drop triangle?
 
 ## Datasheets
 - [ ] Get CH32H417RM (Reference Manual) — wch-ic.com download blocked for automation; user to drop `CH32H417RM.PDF` into `datasheets/`
@@ -18,3 +17,5 @@
 - [ ] Sample clock source (programmable clock e.g. Si5351?) and ETR wiring
 - [ ] Analog front-end: DDS filter, ADC10065 driver, CH32 ADC conditioning
 - [ ] Back-feed protection part selection
+- [ ] Capture-bus 2:1 switch (ADC10065 ↔ RP2350 counter pattern), ~12 lines, ≥65 MHz, Ioff
+- [ ] RP2350 PIO counter-pattern generator: max clock achievable (target ≥65 MHz, ideally up to DVP 150 MHz)

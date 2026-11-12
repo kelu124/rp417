@@ -121,7 +121,12 @@ Decided 2026-11-12:
   → reconstruction filter → split:
   - differential driver/balun → ADC10065 (10-bit, 65 MSPS, 3 V, output driver 2.5/3.3 V)
   - offset/gain stage → CH32 ADC + HSADC input(s)
-- Triangle is not native to the AD9851 (sine/square only) — open question.
+- Waveforms: AD9851 sine (+ comparator square). **No triangle** — decided 2026-11-12: exact throughput
+  checking is done digitally instead (below).
+- **Counter-pattern injection (decided 2026-11-12):** the ADC10065 has no output-enable (only STBY), so a
+  2:1 bus switch (D[9:0] + clock + sync, ~12 lines, RP-controlled) selects ADC10065 ↔ RP2350 onto the CH32
+  DVP/UHSIF capture pins. RP2350 PIO drives a known counter sequence at a programmable clock; the host
+  checks every sample for loss/duplication/reordering. Bus switch must be Ioff/back-feed safe (§6).
 - ADC10065 → DVP (D[9:0], PCLK, sync) primary; UHSIF as alternative path (pin plan TBD).
 - Sample clock: proposed programmable clock (e.g. Si5351) so the sample rate can be swept for
   throughput tests; same clock to CH32 timer ETR for sample-accurate markers.

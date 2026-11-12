@@ -6,3 +6,4 @@
 - 2026-11-12 — Checked `userinputs/tocheck.md` claims against datasheets (results in SPEC.md §3)
 - 2026-11-12 — Decided: programming via minichlink + RP2350 funprog port; RP2350 permanently on board
 - 2026-11-12 — Decided: USB switch on PB8/PB9 (USBHS ↔ RP2350 SDI); standalone mode per SPEC §7
+- 2026-11-12 — Decided: no triangle; RP2350 counter-pattern injection into capture bus via 2:1 bus switch
