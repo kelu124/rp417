@@ -2,6 +2,8 @@
 
 Status: **draft / requirements gathering** (last update 2026-11-12)
 
+All decisions are logged in `DECISIONS.md` (Dxx IDs).
+
 ## 1. Intent
 
 A dev board to push the CH32H417 to its limits (USB3 throughput, parallel capture,
@@ -29,12 +31,12 @@ The board must also work **without the RP2350** (CH32 standalone).
 
 ## 3. Verified CH32H417 facts that drive the design
 
-Source: `datasheets/CH32H417DS0.md` (V1.4), `datasheets/CH32H417_EVB_Reference_EN.md`,
+Source: `datasheets/CH32H417DS0_V1.9_en.md` (V1.9; was checked on V1.4 first), `datasheets/CH32H417RM_V1.8_en.md`, `datasheets/CH32H417_EVB_Reference_EN.md`,
 `datasheets/CH32H417_UHSIF_RM_EN.md`.
 
 - **Package: CH32H417QEU (QFN128).** The QFN68 (WEU) has *no* BOOT/ISP function.
-- **Lot number:** chips whose lot-number digit 5 is 0 lack GPHA, Ethernet, SerDes, CAN, and
-  WCHISPTool download needs digit 5 ≠ 0 → buy recent lots, check on receipt.
+- **Lot number:** DS V1.4 said lot-digit-5 = 0 parts lack GPHA/Ethernet/SerDes/CAN; **V1.9 no longer says so**.
+  The EVB reference still says WCHISPTool download needs digit 5 ≠ 0 → check on receipt.
 - **No BOOT0 pin.** Bootloader entry (56 KB system flash):
   - USB ISP on **USBFS PA11 (DM) / PA12 (DP)**: at power-on, DP high + DM low ⇒ BOOT mode.
     DP must not stay pulled up afterwards.
@@ -48,6 +50,9 @@ Source: `datasheets/CH32H417DS0.md` (V1.4), `datasheets/CH32H417_EVB_Reference_E
 - Three USB controllers: **USBSS** (5 Gbps, SSTX/SSRX A/B, polarity swap supported),
   **USBHS** (480 Mbps, PB8/PB9), **USBFS** (12 Mbps, PA11/PA12, also OTG).
 - **DVP:** 8/10/12-bit, PCLK up to 150 MHz, VSYNC/HSYNC sync. ADC10065 at 65 MHz → fits.
+  RM §29: 10/12-bit samples are zero-extended to 16 bit (65 MSPS ⇒ 130 MB/s); lines alternate
+  between DMA BUF0/BUF1 (COL_NUM samples per line, ROW_NUM lines per frame); snapshot or
+  continuous mode (RB_DVP_CM). Gapless line-to-line capture still to be proven (counter test, D16).
 - **UHSIF:** 8/16/24/32-bit, clock ≤125 MHz (derived from SYSCLK), 500 MB/s theoretical,
   pins UHSIF_PORT[47:0]. Alternative capture path.
 - **ADC:** 2 × 12-bit, up to 5 MSPS, 16 ext channels. **HSADC:** 10-bit, 20 MSPS, 7 channels
@@ -66,7 +71,7 @@ Claims from `userinputs/tocheck.md` — checked:
 | USB3 measured ~450 MB/s | ⚠️ marketing/EVB figure, not in datasheet — to measure ourselves |
 | WeAct LA 16 ch @ 200 MHz uses UHSIF | ❓ unverifiable (closed firmware); not needed for us |
 | Timer ETR external clock / one-pulse mode | ✅ ETR pins exist; details need the Reference Manual |
-| DVP continuous gapless capture | ❓ needs RM + a counter-pattern test (planned as a test) |
+| DVP continuous gapless capture | ⚠️ RM: continuous mode + BUF0/BUF1 ping-pong per line exists; gapless across line/frame boundaries to prove with the counter test |
 
 ## 4. Programming the CH32 (R2) — decided 2026-11-12
 

@@ -6,6 +6,8 @@ CH32H417 for automated limit testing (USB3, parallel ADC capture, internal ADCs,
 ## Where things are
 
 - `SPEC.md` — the living specification. Update it whenever a design decision is made or changed.
+- `DECISIONS.md` — append-only log of **every** design decision (ID, date, decision, why,
+  alternatives, who decided, SPEC section). Changes = new entry that supersedes the old one.
 - `datasheets/` — PDFs and their markdown translations (`markitdown file.pdf > file.md`).
   Grep the `.md` files; quote the source file when citing a fact in SPEC.md.
 - `userinputs/` — raw notes from the user. Treat claims there as **unverified** until checked
@@ -18,6 +20,9 @@ CH32H417 for automated limit testing (USB3, parallel ADC capture, internal ADCs,
 - `.claude/commits.md` — one entry per commit: date, short hash, what and why.
 
 ## Rules
+
+- **Log every design decision in `DECISIONS.md`** the moment it is made (user's or Claude's call),
+  and reflect it in SPEC.md in the same commit.
 
 - Every commit gets an entry in `.claude/commits.md` (add it in the same commit; hash can be
   filled in by the following commit or left as "this commit").

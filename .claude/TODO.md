@@ -1,10 +1,9 @@
 # TODO
 
 ## Open questions (user)
+- [ ] EDA tool / fab / layer count (proposal: KiCad, JLCPCB, 6 layers)
 
 ## Datasheets
-- [ ] Get CH32H417RM (Reference Manual) — wch-ic.com download blocked for automation; user to drop `CH32H417RM.PDF` into `datasheets/`
-- [ ] Get AD9851 datasheet (analog.com download failed)
 - [ ] Get QingKe V5/V3 processor manuals (debug module details for RP-side SDI)
 - [ ] Check ADC10065 availability/lifecycle status
 

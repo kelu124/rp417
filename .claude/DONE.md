@@ -7,3 +7,5 @@
 - 2026-11-12 — Decided: programming via minichlink + RP2350 funprog port; RP2350 permanently on board
 - 2026-11-12 — Decided: USB switch on PB8/PB9 (USBHS ↔ RP2350 SDI); standalone mode per SPEC §7
 - 2026-11-12 — Decided: no triangle; RP2350 counter-pattern injection into capture bus via 2:1 bus switch
+- 2026-11-12 — Added + converted CH32H417 DS V1.9 (en/zh), RM V1.8 (en/zh), AD9851; dropped DS V1.4; re-verified SPEC §3 on V1.9
+- 2026-11-12 — Created DECISIONS.md, backfilled D01–D17
