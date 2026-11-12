@@ -1,0 +1,21 @@
+# TODO
+
+## Open questions (user)
+- [ ] Confirm standalone proposal (SPEC §7): VBUS ORing from any port, RP2350 safe defaults, CH32 → RP command link
+- [ ] Triangle waveform: AD9851 only does sine/square — add a second generator / DAC, or drop triangle?
+
+## Datasheets
+- [ ] Get CH32H417RM (Reference Manual) — wch-ic.com download blocked for automation; user to drop `CH32H417RM.PDF` into `datasheets/`
+- [ ] Get AD9851 datasheet (analog.com download failed)
+- [ ] Get QingKe V5/V3 processor manuals (debug module details for RP-side SDI)
+- [ ] Check ADC10065 availability/lifecycle status
+
+## Design
+- [ ] RP2350 funprog port (funprog_port.h, bitbang_rvswdio.h — PIO?) + USB HID interface compatible with minichlink pgm-esp32s2-ch32xx
+- [ ] (fallback) UART ISP on PB6/PB7 driven by RP2350
+- [ ] Power tree incl. standalone power path
+- [ ] USB switch for PB8/PB9 (USBHS ↔ RP SWD)
+- [ ] Pin plan: DVP vs UHSIF for ADC10065, ADC/HSADC inputs, SDIO/SDMMC, QSPI, UART, I2C
+- [ ] Sample clock source (programmable clock e.g. Si5351?) and ETR wiring
+- [ ] Analog front-end: DDS filter, ADC10065 driver, CH32 ADC conditioning
+- [ ] Back-feed protection part selection

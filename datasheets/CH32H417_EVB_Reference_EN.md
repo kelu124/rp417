@@ -1,0 +1,225 @@
+CH32H417 Evaluation Board Reference https://wch-ic.com
+CH32H417 Evaluation Board Reference
+Version: V1.5
+https://wch-ic.com
+1. Overview
+This evaluation board is applied to the development of the CH32H417 chip. The IDE uses the MounRiver 2 compiler,
+with the option of WCH-Link for emulation and download, and provides reference examples and demonstrations of
+applications related to chip resources.
+2. Evaluation Board Hardware
+Please refer to the CH32H417SCH.pdf document for the schematic of the evaluation board.
+CH32H417 Evaluation Board
+Description
+1. Button 2. USBFS interface 3. Main control MCU 4. Network port
+5. LDO circuit 6. USBHS/USBSS interface 7. SWD interface 8. LED
+9. DCDC circuit 1 10. DCDC circuit 2
+The above CH32H417QEU6 evaluation board comes with the following resources.
+Motherboard - CH32H417QEU6-R0
+1. USER button and reset button: Connected to the IO port of the main control MCU for button control and for
+external manual reset of the master MCU.
+2. USB interface: Connected to the USBFS communication interface of the main chip.
+3. Main control: CH32H417QEU
+4. Network port: Network communication interface of the main chip
+V1.5 1
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+5. LDO circuit: Used to realize the conversion of 5V voltage to 3.3V power supply voltage available on the chip.
+6. USB interface: Connected to the USBHS or USBSS communication interface of the main chip.
+7. SWD interface: Used to download the simulation debugging
+8. LED: Connected to the IO port of the master MCU via J3 pin for control
+9. DCDC circuit 1: Used to realize the USBPD voltage to 5V voltage
+10. DCDC circuit 2: Used to realize the 3.3V voltage into the chip available 1.2V voltage
+V1.5 2
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+3. Software Development
+3.1 EVT Package Directory Structure
+Description:
+PUB folder: provides evaluation board manuals, evaluation board schematics.
+EXAM folder: Provides software development drivers and corresponding examples for the CH32H417 controller,
+grouped by peripheral. Each type of peripheral folder contains one or more functional application routines folders.
+3.2 IDE Use-MounRiver
+Download MounRiver_Studio, double click to install it, and you can use it after installation. (MounRiver_Studio
+instructions are available at the path: MounRiver\MounRiver_Studio\ MounRiver_Help.pdf and
+MounRiver_ToolbarHelp.pdf)
+3.2.1 Open Project
+ Open project:
+1) Double-click project file directly with the suffix name .wvproj under the corresponding project path.
+2) Click File in MounRiver IDE2, click Load Project, select the .project file under the corresponding path, and
+click Confirm to apply it.
+3.2.2 Compilation
+MounRiver contains three compilation options, as shown in the following figure.
+V1.5 3
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+Compile option 1 is Incremental Build, which compiles the modified parts of the selected project.
+Compile option 2 is ReBuild, which performs a global compilation of the selected project.
+Compile option 3 is All Build, which performs global compilation for all projects.
+3.2.3 Download/Simulation
+ Download
+1) Debugger download
+Connect to the hardware via WCH-Link (see WCH-Link instructions for details, path:
+MounRiver\MounRiver_Studio\ WCH-Link instructions.pdf), click the Download button on the IDE, and select
+Download in the pop-up interface, as shown in the figure below.
+1 for querying the chip read protection status;
+2 for setting the chip read protection, re-power on the configuration to take effect;
+V1.5 4
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+3 for lifting the chip read protection, re-power on the configuration to take effect;
+4 for query the display of the current chip type
+5 for setting the LINK mode
+6 power-off to erase the whole user area flash
+7 for setting the download address
+8 for selecting the single and dual line mode
+9 for selecting the download file
+10 for download the configuration options
+2) Dual-core chip download mode
+417 chip compilation, corresponding to the 2 projects to generate 2 target files, you can choose to download
+separately or after the merger.
+Mode 1: Separate download
+1. Compile the V3 project to generate the target file, select the download address 0x08000000 in the download
+configuration, and check Erase All. Configuration is complete and click Download.
+2. Compile the V5 project to generate target file, download the configuration to select the download address
+0x08010000, do not check the Erase All
+0x08010000 for the V5 core configuration of the starting address. Configuration completed click download.
+V1.5 5
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+Mode 2: Combined downloads
+V3 project compiles normally, configure V5 project properties
+1 Configure the property directory
+2 Check the merge target function
+3 Set the merge file name
+V1.5 6
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+4 Select the path of the target file generated by the V3 compilation
+Recompile the V5 project, and the merged target file Merge.bin. will be generated under the path of the V5 project.
+Download the configuration as follows
+Configuration is complete, check the V5 project and click Download.
+ Simulation
+Open MounRiver Studio software for debugging configuration
+V1.5 7
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+1 V3F project debugging settings
+2 Select the path to the V5F project
+3 Enable merge debugging and set the port number (if unchecked, the V3F project is debugged separately)
+4 Debugging configuration
+5 Apply and save the settings
+Click Start Debug or the debug icon to start debugging.
+1) Toolbar description
+Click Debug button in the menu bar to enter the download, see the image below, the download toolbar.
+Detailed functions are as follows.
+(1) Reset: After reset, the program returns to the very beginning.
+(2) Continue: Click to continue debugging.
+(3) Terminate: Click to exit debugging.
+(4) Single-step jump-in: Each time you tap a key, the program runs one step and encounters a function to enter
+and execute.
+(5) Single-step skip: jump out of the function and prepare the next statement.
+V1.5 8
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+(6) Single-step return: return the function you jumped into
+(7) Instruction set single-step mode: click to enter instruction set debugging (need to use with 4, 5 and 6
+functions).
+2) Set breakpoints
+Double-click on the left side of the code to set a breakpoint, double click again to cancel the breakpoint, set the
+breakpoint as shown in the following figure;
+3) Interface display
+(1) Instruction set interface
+Click on the instruction set single-step debugging can enter the instruction debugging, to single-step jump in
+for example, click once to run once, the running cursor will move to view the program running, the instruction
+set interface is shown as follows.
+(2) Program running interface
+It can be used with instruction set single-step debugging, still take single-step jumping in as an example, click
+once to run once, the running cursor will move to view the program running, the program running interface is
+shown as follows.
+V1.5 9
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+4) Variables
+Hover over the variable in the source code to display the details, or select the variable and right-click add to watch
+Fill in the variable name , and add the variable you just selected to the window:
+5) Peripheral registers
+In the lower left corner of IDE interface Peripherals interface shows a list of peripherals, tick the peripherals will
+display its specific register name, address, value in the Memory window.
+V1.5 10
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+Note:
+(1) When debugging, click the icon in the upper right corner to enter the original interface.
+(2) V3F project does not support single-step debugging during CH32H417 chip debugging.
+(3) V5F project breakpoints during debugging can only be set after the V5 core wakes up
+V1.5 11
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+4. WCH-LinkUtility.exe Download
+The download process for the chip using the WCH-LinkUtility tool is:
+1) Connect WCH-Link
+2) Select chip information
+3) Add firmware
+4) If the chip is read protected, you need to release the chip read protection.
+5) Execute
+Notes: The current version of the tool supports to configure the download file address when downloading the target
+file. When downloading dual-core chips, you need to pay attention to the fact that when downloading the second
+project, you can't check the Erase All box.
+V1.5 12
+
+CH32H417 Evaluation Board Reference                                                           https://wch-ic.com
+
+5. WCHISPTool.exe Download
+CH32H417 chips with batch number 5 non-zero support downloading using the WCHISPTool. Both USB and serial
+port download methods are supported. USB pins are PA11 (DM) and PA12 (DP), while serial port pins are PB6 (TX)
+and PB7 (RX). The special QFN88 package (CH32H417MEU) uses serial pins PA9 (TX) and PA10 (RX). The
+QFN68 package (CH32H417WEU) does not support the BOOT function.Please refer to the table below for details:
+|              | PACKAGE  |                    | USB  | USART             |
+| ------------ | -------- | ------------------ | ---- | ----------------- |
+| CH32H417QEU  | QFN128   | PA11（DM）、PA12（DP）  |      | PB6(TX)、PB7（RX）   |
+| CH32H417MEU  | QFN88    | PA11（DM）、PA12（DP）  |      | PA9(TX)、PA10（RX）  |
+| CH32H417WEU  | QFN68    |                    | -    | -                 |
+| CH32H416RDU  | QFN60X6  | PA11（DM）、PA12（DP）  |      | PB6(TX)、PB7（RX）   |
+| CH32H415REU  | QFN60X6  | PA11（DM）、PA12（DP）  |      | PB6(TX)、PB7（RX）   |
+
+The download process is as follows:
+1)  USB download method
+
+V1.5                                                   13
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+1. Select the MCU series and chip model;
+2. Select the USB download method; the chip will power up again, detect a high level on the DP pin, and enter
+BOOT mode;
+3. Identify the device; it is typically recognized automatically. If not detected, manual selection is required;
+4. Select the firmware; choose the downloaded .hex or .bin target program file;
+5. Select the download configuration as required;
+6. Click Download.
+2) Serial port download method
+1. Select the MCU series and chip model;
+2. Select the serial port download method and select the correct port number;
+3. Select the firmware, select the downloaded .hex or .bin target program file;
+4. Select download configurations as required;
+5. Click Download. The software enters download-ready status, awaiting device reconnection.
+6. Power cycle the device to enter BOOT mode, initiating automatic download.
+V1.5 14
+
+CH32H417 Evaluation Board Reference https://wch-ic.com
+Tips:
+1. When using USB download, power-on check requires DP (PA12) pin high and DM (PA11) pin low. However, DP
+pin must not remain pulled up, otherwise USB functionality will be abnormal.
+2. Serial port download uses a key-free method: first enable the feature, then power the device back on to enter
+BOOT mode for the download function to take effect. Outside BOOT mode, the verification and code protection
+removal processes are identical to download.
+3. The key-free download feature requires enabling the corresponding option in the configuration settings; otherwise,
+it will not function.
+4. The BOOT function is associated with corresponding user-defined function bits, both enabled by default at factory
+settings. These can be modified during ISP download or via a 2-wire method.
+5. In blank chip state (default value in the first 4K of FLASH), when the corresponding user-defined function bit is
+enabled, the chip enters BOOT mode for subsequent download upon power-on without requiring additional
+conditions (applicable to both USB and serial interfaces).
+6. Related Links
+WCH Electronic Community: https://www.wch.cn/bbs/forum-106-1.html
+WCH official website: https://www.wch-ic.com/
+WCH-LINK instructions for use: https://www.wch-ic.com/products/WCH-Link.html
+V1.5 15
