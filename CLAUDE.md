@@ -29,3 +29,8 @@ CH32H417 for automated limit testing (USB3, parallel ADC capture, internal ADCs,
 - Never state a chip capability in SPEC.md without a datasheet reference or a "to verify" flag.
 - Key gotchas (see SPEC.md §3): QFN128 package required for ISP; lot digit 5 must be ≠ 0;
   SWD pins PB8/PB9 are the USBHS pins; ISP entry is by power-cycle (no BOOT0 pin).
+- **Session start hook** (`.claude/settings.json` → `.claude/hooks/pending-decisions.py`) lists every
+  unchecked item under `## Open questions (user)` in `.claude/TODO.md` and every proposal row
+  (`<tr><td>Pn-m</td>…`) in `docs/design/*.html` not yet tagged `<span class="tag d">Dxx</span>`.
+  When it reports pending points, ask the user about them first. Keep those two formats so the hook
+  keeps finding them: tick/remove answered questions, tag approved proposals with their Dxx.

@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/pending-decisions.py\" 2>/dev/null || true",
+            "timeout": 10,
+            "statusMessage": "Checking unanswered rp417 decisions"
+          }
+        ]
+      }
+    ]
+  }
+}

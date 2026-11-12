@@ -13,3 +13,4 @@
 - 2026-11-12 — Decided generator output on 2-pin 2.54 mm header, no SMA (D20)
 - 2026-11-12 — Block diagrams (system, power, capture) + CH32/RP2350/interconnect pin plans: docs/design/block-diagram.html (P1)
 - 2026-11-12 — Decided DVP-only capture, UHSIF parked (D21)
+- 2026-11-12 — SessionStart hook that surfaces unanswered decision points (.claude/hooks/pending-decisions.py)
