@@ -20,3 +20,6 @@
 - [ ] Back-feed protection part selection
 - [ ] Capture-bus 2:1 switch (ADC10065 ↔ RP2350 counter pattern), ~12 lines, ≥65 MHz, Ioff
 - [ ] RP2350 PIO counter-pattern generator: max clock achievable (target ≥65 MHz, ideally up to DVP 150 MHz)
+
+## Parked
+- [ ] UHSIF: revisit as a test target (RP2350 PIO master, or FPGA connector) — D21

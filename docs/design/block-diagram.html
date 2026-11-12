@@ -262,7 +262,7 @@ flowchart LR
 <tr><td>P1-2</td><td>RP2354B (RP2350B + 2 MB in-package flash)</td><td>48 GPIO needed; saves the flash chip</td></tr>
 <tr><td>P1-3</td><td>AD9851 at 5 V (180 MHz) + 74AHCT125 level shift</td><td>At 3.3 V the AD9851 is limited to 125 MHz; at 5 V its logic-high threshold is 3.5 V</td></tr>
 <tr><td>P1-4</td><td>Si5351A: CLK0 ADC clock, CLK1 phase-tunable capture clock, CLK2 30 MHz DDS reference</td><td>Sample rate can be swept for throughput tests; capture edge can be tuned</td></tr>
-<tr><td>P1-5</td><td>Capture on DVP only (UHSIF not routed in rev A)</td><td>Pin overlap with SDMMC/ADC; DVP covers 65 MS/s</td></tr>
+<tr><td>P1-5 <span class="tag d">D21</span></td><td>Capture on DVP only — UHSIF parked (not routed in rev A)</td><td>Pin overlap with SDMMC/ADC; DVP covers 65 MS/s</td></tr>
 <tr><td>P1-6</td><td>CH32 domain: separate 3V3 + 1V2 bucks + AVCC LDO, one EN from RP GPIO38 with default ON at power-up (standalone, D15), active discharge</td><td>Rail order; true 0 V when off</td></tr>
 <tr><td>P1-7</td><td>HD3SS3220 for J1 orientation + CC; TS3USB221A for PB8/PB9; LM66100 ORing ×4; INA3221 monitor</td><td>Reversible USB3 C plug needs an SS mux (same choice as the IvanLi-CN reference project)</td></tr>
 <tr><td>P1-8</td><td>Analog chain: AD9851 → ~60 MHz LPF → THS4541 → ADC10065; OPA2356 for CH32 ADC conditioning + header buffer</td><td>ADC10065 needs a differential input; CH32 ADCs need a 0–3.3 V signal</td></tr>

@@ -9,4 +9,5 @@
 | 2026-11-12 | 4d87bc2 | Datasheets: DS V1.9 + RM V1.8 (en/zh) + AD9851 as markdown; DECISIONS.md log (D01–D17); SPEC re-verified on V1.9, DVP RM notes |
 | 2026-11-12 | a2de425 | Decisions D18 (KiCad/JLCPCB/6L) and D19 (playing-card outline target) |
 | 2026-11-12 | 86f3365 | D20: generator output on 2-pin 2.54 mm header, no SMA |
-| 2026-11-12 | (this commit) | docs/design/block-diagram.html: mermaid block/power/capture diagrams, CH32 + RP2354B + interconnect pin plans, proposals P1-1..P1-10 |
+| 2026-11-12 | 76a563c | docs/design/block-diagram.html: mermaid block/power/capture diagrams, CH32 + RP2354B + interconnect pin plans, proposals P1-1..P1-10 |
+| 2026-11-12 | (this commit) | D21: DVP-only capture, UHSIF parked |

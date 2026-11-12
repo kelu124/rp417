@@ -134,7 +134,9 @@ Decided 2026-11-12:
   DVP/UHSIF capture pins. RP2350 PIO drives a known counter sequence at a programmable clock; the host
   checks every sample for loss/duplication/reordering. Bus switch must be Ioff/back-feed safe (§6).
 - Generator output exposed on a 2-pin 2.54 mm header, signal + GND (D20); no SMA/U.FL.
-- ADC10065 → DVP (D[9:0], PCLK, sync) primary; UHSIF as alternative path (pin plan TBD).
+- ADC10065 → DVP (D[9:0], PCLK, sync) (D21). **UHSIF parked** — not routed on rev A. Notes for later:
+  UHSIF = 8–32 bit, ≤125 MHz from SYSCLK, master/slave handshake bus (CS#/WR#/RD#/OE# + RDNE/WRNF/AF#/AE#
+  flags), 4 lines × 8 buffers, fixed default pin maps; suited to FPGA/SoC partners, not a raw ADC.
 - Sample clock: proposed programmable clock (e.g. Si5351) so the sample rate can be swept for
   throughput tests; same clock to CH32 timer ETR for sample-accurate markers.
 
