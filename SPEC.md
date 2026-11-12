@@ -136,6 +136,15 @@ Decided 2026-11-12:
 - Sample clock: proposed programmable clock (e.g. Si5351) so the sample rate can be swept for
   throughput tests; same clock to CH32 timer ETR for sample-accurate markers.
 
-## 9. Open questions
+## 9. Board / manufacturing
+
+- KiCad, JLCPCB fab + assembly, 6 layers (D18).
+- Outline target 63.5 × 88.9 mm, playing-card size (D19), to be confirmed by an area budget.
+  First estimate: 4 × USB-C on the two short edges, microSD at a corner, CH32 QFN128 centred
+  next to J1 (short SS pairs), RP2350 + flash on the other half, analog chain (AD9851,
+  filter, driver, ADC10065) along one long edge, away from the USB3 lines; small parts on the
+  back. Likely feasible only with 0402 passives and QFN/TSSOP logic.
+
+## 10. Open questions
 
 See `.claude/TODO.md`.

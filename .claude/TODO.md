@@ -1,13 +1,14 @@
 # TODO
 
 ## Open questions (user)
-- [ ] EDA tool / fab / layer count (proposal: KiCad, JLCPCB, 6 layers)
 
 ## Datasheets
 - [ ] Get QingKe V5/V3 processor manuals (debug module details for RP-side SDI)
 - [ ] Check ADC10065 availability/lifecycle status
 
 ## Design
+- [ ] Block diagram + full parts list (with JLC availability)
+- [ ] Area budget / rough placement to confirm the 63.5 × 88.9 mm outline (D19)
 - [ ] RP2350 funprog port (funprog_port.h, bitbang_rvswdio.h — PIO?) + USB HID interface compatible with minichlink pgm-esp32s2-ch32xx
 - [ ] (fallback) UART ISP on PB6/PB7 driven by RP2350
 - [ ] Power tree incl. standalone power path
