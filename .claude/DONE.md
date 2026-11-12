@@ -10,3 +10,4 @@
 - 2026-11-12 — Added + converted CH32H417 DS V1.9 (en/zh), RM V1.8 (en/zh), AD9851; dropped DS V1.4; re-verified SPEC §3 on V1.9
 - 2026-11-12 — Created DECISIONS.md, backfilled D01–D17
 - 2026-11-12 — Decided KiCad/JLCPCB/6 layers (D18), playing-card outline target (D19)
+- 2026-11-12 — Decided generator output on 2-pin 2.54 mm header, no SMA (D20)

@@ -132,6 +132,7 @@ Decided 2026-11-12:
   2:1 bus switch (D[9:0] + clock + sync, ~12 lines, RP-controlled) selects ADC10065 ↔ RP2350 onto the CH32
   DVP/UHSIF capture pins. RP2350 PIO drives a known counter sequence at a programmable clock; the host
   checks every sample for loss/duplication/reordering. Bus switch must be Ioff/back-feed safe (§6).
+- Generator output exposed on a 2-pin 2.54 mm header, signal + GND (D20); no SMA/U.FL.
 - ADC10065 → DVP (D[9:0], PCLK, sync) primary; UHSIF as alternative path (pin plan TBD).
 - Sample clock: proposed programmable clock (e.g. Si5351) so the sample rate can be swept for
   throughput tests; same clock to CH32 timer ETR for sample-accurate markers.
