@@ -24,7 +24,7 @@ The board must also work **without the RP2350** (CH32 standalone).
 | R7 | DDS signal generator (sine/triangle/…) piloted by the RP2350, feeding the ADC10065 | agreed — **AD9851** preferred |
 | R8 | DDS also feeds the CH32's own ADCs: 12-bit ADC (5 MSPS) **and** 10-bit HSADC (20 MSPS) | agreed |
 | R9 | Back-feeding protection on both chips (power rails and I/O) | agreed — see §6 |
-| R10 | Board usable without the RP2350's USB host link (RP2350 is **permanently on board**) | agreed — see §7 |
+| R10 | Board usable without the RP2350's USB host link (RP2350 is **permanently on board**) | **decided** — see §7 |
 | ~~R11~~ | ~~On-board WCH-LinkE~~ | **removed for now** (2026-11-12) |
 
 ## 3. Verified CH32H417 facts that drive the design
@@ -91,7 +91,7 @@ no H41x device file yet; WCHISPTool does support it).
 - **J1 – CH32 USB3** USB-C: SS pairs + USBHS D+/D− (PB8/PB9).
 - **J2 – CH32 USBFS** USB-C (PA11/PA12): ISP port, second USB2 device.
 - **J3 – RP2350** USB-C.
-- **Required** (SDI programming shares PB8/PB9): a 480 Mbps-capable analog switch on PB8/PB9
+- **Decided 2026-11-12** (SDI programming shares PB8/PB9): a 480 Mbps-capable analog switch on PB8/PB9
   (RP-controlled) to select USB-connector ↔ RP2350 SWD. Default (unpowered/RP absent) = USB. Doubles as a
   software "unplug" for USBHS tests.
 
@@ -107,7 +107,7 @@ no H41x device file yet; WCHISPTool does support it).
 ## 7. Standalone mode (R10)
 
 The RP2350 is **permanently on board**; "without the RP2350" means *no host connected to the RP2350's USB*.
-Proposal (to confirm):
+Decided 2026-11-12:
 - Board power: VBUS of J1 (CH32 USB3), J2 (CH32 USBFS), J3 (RP2350) and an optional external input,
   ORed through ideal diodes → any one cable powers the whole board. RP2350 always powered.
 - RP2350 firmware boots into a safe standalone default: CH32 powered, NRST released, USB switch → USB
