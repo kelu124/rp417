@@ -3,6 +3,7 @@
 Status: **draft / requirements gathering** (last update 2026-11-12)
 
 All decisions are logged in `DECISIONS.md` (Dxx IDs).
+Block diagrams (mermaid) and pin plans: `docs/design/block-diagram.html` (proposal P1, pending approval).
 
 ## 1. Intent
 

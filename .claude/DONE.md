@@ -11,3 +11,4 @@
 - 2026-11-12 — Created DECISIONS.md, backfilled D01–D17
 - 2026-11-12 — Decided KiCad/JLCPCB/6 layers (D18), playing-card outline target (D19)
 - 2026-11-12 — Decided generator output on 2-pin 2.54 mm header, no SMA (D20)
+- 2026-11-12 — Block diagrams (system, power, capture) + CH32/RP2350/interconnect pin plans: docs/design/block-diagram.html (P1)
