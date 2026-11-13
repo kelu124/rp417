@@ -1,2 +1,9 @@
 # Cloned reference repos (re-create with projects/clone.sh)
 projects/*/
+
+# KiCad / generator artefacts
+__pycache__/
+*.kicad_prl
+hw/*-backups/
+hw/fp-info-cache
+hw/build/

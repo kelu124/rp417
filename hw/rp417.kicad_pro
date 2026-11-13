@@ -1,0 +1,7 @@
+{
+  "meta": { "filename": "rp417.kicad_pro", "version": 3 },
+  "schematic": { "legacy_lib_dir": "", "legacy_lib_list": [] },
+  "board": { "design_settings": { "defaults": {}, "rules": {} } },
+  "sheets": [],
+  "text_variables": {}
+}

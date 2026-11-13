@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "lcsc")(type "KiCad")(uri "${KIPRJMOD}/lib/lcsc.kicad_sym")(options "")(descr "easyeda2kicad imports from LCSC"))
+  (lib (name "rp417")(type "KiCad")(uri "${KIPRJMOD}/lib/rp417.kicad_sym")(options "")(descr "rp417 custom symbols"))
+)
