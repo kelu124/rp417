@@ -38,9 +38,12 @@ ul{margin:6px 0 6px 20px;padding:0}
 <body>
 <main>
 <h1>rp417 — block diagram &amp; pin plan</h1>
-<p class="sub">CH32H417QEU6 test board supervised by an RP2350 · proposals P1–P3 · updated 2026-11-13 · source of truth: <code>SPEC.md</code>, <code>DECISIONS.md</code></p>
+<p class="sub">CH32H417QEU6 test board supervised by an RP2350 · rev A · proposals P1–P3 · updated 2026-11-13 · source of truth: <code>SPEC.md</code>, <code>DECISIONS.md</code></p>
 <p><span class="tag d">decided</span> = logged in DECISIONS.md &nbsp; <span class="tag p">proposed</span> = new in this document, awaiting approval &nbsp; <span class="tag w">withdrawn</span> = replaced by a later proposal</p>
-<p><b>Rev A, redrawn 2026-11-13</b> for D22–D41 (minimal BOM). Parts list and area budget: §8–§9.</p>
+<p><b>Rev A, redrawn 2026-11-13</b> for D22–D48 (minimal BOM). Parts list and area budget: §8–§9.</p>
+<div class="note"><b>Status 2026-11-13.</b> Architecture, pin plans and part selection decided (D01–D48). Parts on both sides where it helps (D48).
+Still open: CH32H417QEU6 (user-sourced, D43) — consign to JLC or hand-solder. <b>Next:</b> KiCad schematic, then placement + routing.
+To prove on hardware: gapless DVP JPEG-mode capture (D37), CH32 temperature at full USB3 load (D25), generator amplitude (D33).</div>
 <nav>
 <a href="#system">System</a><a href="#power">Power</a><a href="#capture">Capture path</a><a href="#analog">Analog</a><a href="#ch32">CH32 pins</a><a href="#rp">RP2350 pins</a><a href="#link">RP ↔ CH32</a><a href="#props">Proposals</a><a href="#bom">BOM</a><a href="#area">Area</a>
 </nav>
@@ -291,7 +294,7 @@ flowchart LR
 <thead><tr><th>ID</th><th>Proposal</th><th>Why</th></tr></thead>
 <tbody>
 <tr><td>P3-1 <span class="tag d">D44</span></td><td>ADC10065 IRS on a 3-way solder jumper (VDDA = 2 Vpp default / GND = 1.5 Vpp / open = 1 Vpp)</td><td>Generator amplitude is only estimated (1.5–2 Vpp); zero parts</td></tr>
-<tr><td>P3-2</td><td>Single-sided assembly (all parts on top); supersedes the double-sided allowance of D19</td><td>Area budget ≈ 34 % of one side; cheaper JLC assembly</td></tr>
+<tr><td>P3-2 <span class="tag d">D48</span></td><td>Single-sided assembly (all parts on top) — <b>not adopted</b>: user chose parts on both sides where it helps (D48)</td><td>Area budget ≈ 34 % of one side; cheaper JLC assembly</td></tr>
 <tr><td>P3-3 <span class="tag d">D43</span></td><td>CH32H417QEU6 sourcing — 0 stock at JLC: (a) JLC global sourcing / pre-order, (b) consign parts bought elsewhere, (c) DNP + hand-solder</td><td>0.35 mm-pitch QFN128 by hand is hard → recommend (a) or (b)</td></tr>
 <tr><td>P3-4 <span class="tag d">D45</span></td><td>USB ESD: USBLC6-2 on J1/J2/J3 D± + RClamp0524P on J1 SS pairs</td><td>≈ $0.40 total; 0.3 pF keeps USB3 SI; optional under D22</td></tr>
 <tr><td>P3-5 <span class="tag d">D46</span></td><td>Clock chip = genuine SI5351A-B-GTR (not the MS5351M clone)</td><td>Clone rated 2.7–3.3 V (3V3 rail at its limit) and register/jitter equivalence unverified</td></tr>
@@ -356,7 +359,9 @@ flowchart LR
 <tr><td><b>Total</b></td><td></td><td><b>≈ 1900 (34 % of one side)</b></td></tr>
 </tbody></table></div>
 <ul>
-<li><b>Fits on one side with room for routing</b> (rule of thumb: ≤ 50–60 % placement density). Double-sided assembly is not needed → proposal P3-2.</li>
+<li><b>Fits on one side with room for routing</b> (rule of thumb: ≤ 50–60 % placement density), but parts go on <b>both sides where it helps</b> (D48):</li>
+<li><b>Top:</b> connectors J1–J5, microSD, CH32, RP2354B, Si5351 + crystals, ADC10065 (hand-fitted), buck + inductor, TS3USB221A, ESD (at the connectors), LC filter, buttons.</li>
+<li><b>Bottom:</b> CH32 / RP2354B / Si5351 decoupling directly under their power pins (shortest loops, frees the top ring for DVP / USB3 / SDMMC fan-out), series-R arrays on the RP↔CH32 lines, bias networks, LM66100 ×3, load switch, test pads.</li>
 <li>Placement sketch: J1 + J2 on one short edge with the CH32 right behind J1 (SS pairs &lt; 15 mm); J3 on the opposite short edge next to the RP2354B; microSD at a corner beside the CH32 (SDMMC on PC8–PC12/PD2 side); ADC10065 + filter + header along a long edge next to the DVP pins (PE0–PE6, PF3/PF4/PF14), away from J1; logic/counter lines (PC6/PC7/PB13/PF5/PD12–15/PA6) run RP → CH32 across the middle, length-matched loosely (≤ 5 mm skew at 75 MHz).</li>
 <li>0.35 mm-pitch QFN128 (DS V1.9 ch. 4; WCH EVB footprint <code>QFN128_12.3X12.3</code>: pads 0.16 × 0.8 mm, 0.19 mm gap). Pads fan out outward, so ~0.1–0.127 mm traces are enough; check JLC solder-mask dam / stencil for 0.19 mm gaps. Reuse WCH's footprint.</li>
 </ul>

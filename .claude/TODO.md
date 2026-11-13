@@ -2,12 +2,12 @@
 
 ## Open questions (user)
 - [ ] CH32H417QEU6 (user-sourced, D43): consign to JLC or hand-solder?
-- [ ] P3-2: single-sided assembly (all parts on top)?
 
 ## Datasheets
 - [ ] Get QingKe V5/V3 processor manuals (debug module details for RP-side SDI)
 
 ## Design
+- [ ] KiCad schematic rev A (from design page §1–§8), then placement + routing
 - [ ] Hardware: JPEG-mode continuous DVP capture with static HSYNC is gapless (D37; RM supports it)
 - [ ] Hardware: measure CH32 temperature at full USB3 load (D25; estimate +20–25 °C)
 - [ ] Order/reserve early: RP2354B, AOTA-B201610S3R3 inductor (thin JLC stock)

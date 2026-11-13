@@ -175,7 +175,8 @@ Decided 2026-11-12:
 
 - KiCad, JLCPCB fab + assembly, 6 layers (D18).
 - Outline 63.5 × 88.9 mm (D19). **Area budget (2026-11-13): ≈ 1900 mm² of parts+keep-outs ≈ 34 % of one side** → fits;
-  single-sided assembly proposed (P3-2). Details + placement sketch: `docs/design/block-diagram.html` §9.
+  **parts on both sides where it helps** (D48): decoupling, series-R arrays, bias networks, ORing and load switch on the
+  bottom; connectors, ICs, crystals, analog and ESD on top. Details + placement sketch: `docs/design/block-diagram.html` §9.
 - CH32H417 QFN128 is 12.3 × 12.3 mm, **0.35 mm pitch** (DS V1.9 ch. 4 package table; confirmed by WCH's own EVB footprint
   `projects/sdk/ch32h417/EVT/PUB/SCHPCB/CH32H417QEU6-R0` "QFN128_12.3X12.3": single row of 32 pads per side, 0.16 × 0.8 mm,
   0.19 mm gap, + exposed pad). Fan-out leaves each pad outward, so ~0.1–0.127 mm traces suffice (no routing between pads);
