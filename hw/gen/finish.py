@@ -27,8 +27,26 @@ rep = os.path.join(B, "drc.json")
 subprocess.run(["kicad-cli", "pcb", "drc", "--format", "json", "--schematic-parity", "-o", rep, out],
                capture_output=True)
 d = json.load(open(rep))
-c = collections.Counter((v["severity"], v["type"]) for v in d.get("violations", []))
+
+# D59: waived DRC errors that live inside vendor connector footprints (LCSC USB-C / USB-B
+# library geometry: GND shell/pin pads too close to the footprint's own NPTH pegs, thin annular
+# ring on J1 shell pad 25). Waived only if *every* item of the violation belongs to one of these refs.
+WAIVE_TYPES = {"hole_clearance", "annular_width"}
+WAIVE_REFS = {"J1", "J2", "J3"}
+
+
+def waived(v):
+    if v["type"] not in WAIVE_TYPES:
+        return False
+    return all(any(i["description"].endswith(f" of {r}") or f" of {r} " in i["description"]
+                   for r in WAIVE_REFS) for i in v["items"])
+
+
+viol = d.get("violations", [])
+w = [v for v in viol if waived(v)]
+c = collections.Counter((v["severity"], v["type"]) for v in viol if not waived(v))
 for k, n in c.most_common():
     print(n, *k)
+print(f"waived (D59, J1-J3 footprint geometry): {len(w)}")
 print("unconnected items:", len(d.get("unconnected_items", [])))
 print("schematic parity:", len(d.get("schematic_parity", [])))
