@@ -164,6 +164,10 @@ Decided 2026-11-12:
   D0 PE0, D1 PE1, D2 PB13, D3 PE3, D4 PE4, D5 PF14, D6 PE5, D7 PE6, D8 PF4, D9 PF3, PCLK **PB12** (the only PCLK pin on
   QFN88), HSYNC PA4, VSYNC PA5 (DS V1.9 Table 2-2-23). RP PIO counter = GPIO20–29 (D0–D9) + side-set PCLK GPIO30 → full
   10-bit counter. Sample counter: TIM8_ETR on PF2 (D56).
+- **Switch check at 65 MHz** (`datasheets/SN74CBTLV3257.md`, TI SCDS040N, V<sub>CC</sub> 3.3 V, PW package): r<sub>on</sub> 5 Ω typ /
+  7 Ω max at V<sub>I</sub> = 0, 10 / 15 Ω at V<sub>I</sub> = 2.4 V; C<sub>io(off)</sub> A ≈ 10.5 pF, B 5.5 pF; t<sub>pd</sub> ≤ 0.25 ns (RC); tested to
+  200 MHz; I<sub>off</sub> ≤ 15 µA (partial power-down ✅ for D29). ✅ OK for 65 MHz, but the switch adds ≈ 20 pF to each line:
+  with 33 Ω series R the edges slow to ≈ 5–6 ns (10–90 %) — see proposal P4-1.
 - **Logic bus (D03, D56):** 8 general GPIO, RP GPIO12–19 ↔ CH32 PD12–PD15, PD10, PD11, PC6, PC7 (33 Ω series).
 - **Sync (D37):** RP2350 drives HSYNC (PA4) and VSYNC (PA5) in both modes. DVP in JPEG mode: HSYNC may be static,
   buffer switching by DMA length = COL_NUM (RM V1.8 §29.2.2, §29.3.1) → no PCLK alignment needed.

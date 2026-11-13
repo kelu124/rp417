@@ -309,6 +309,12 @@ flowchart LR
 <tr><td>P3-5 <span class="tag d">D46</span></td><td>Clock chip = genuine SI5351A-B-GTR (not the MS5351M clone)</td><td>Clone rated 2.7–3.3 V (3V3 rail at its limit) and register/jitter equivalence unverified</td></tr>
 <tr><td>P3-6 <span class="tag d">D47</span></td><td>Adopt §8 as the rev A part selection (TLV62569 buck, TPS22918 load switch, TS3USB221A, top-mount 24-pin USB-C, TF-01A, 10 pF 12 MHz crystal)</td><td>All stocked; parts chosen for minimum count (D22)</td></tr>
 </tbody></table></div>
+<h3>P4 — after the QFN88 rework (2026-11-13)</h3>
+<div class="tbl"><table>
+<thead><tr><th>ID</th><th>Proposal</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>P4-1</td><td>Capture-path series R: PCLK (Si5351 CLK1 → switch) 33 Ω → 0 Ω; ADC10065 outputs and RP counter lines 33 Ω → 22 Ω; place the 3 switches within ~10 mm of the CH32 DVP pins</td><td>Each switched line carries ≈ 28 pF (switch A + both B ports + CH32 pin + trace). 33 Ω gives ≈ 5–6 ns edges at 65 MHz; 0–22 Ω brings them to ≈ 3.5–4.5 ns. The switch's I<sub>off</sub> now provides the back-feed isolation the series R was for (D29).</td></tr>
+</tbody></table></div>
 
 <h2 id="bom">8. Parts list — ICs and key parts (JLC/LCSC snapshot 2026-11-13)</h2>
 <p class="sub">JLC parts API, stock and USD price @10 / @100. B = Basic, E = Extended. Passives (0402 R/C) not listed. Economic vs Standard assembly is not shown by the API → check in the JLC quote.</p>

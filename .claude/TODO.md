@@ -14,7 +14,7 @@
 - [ ] Hardware: measure CH32 temperature at full USB3 load (D25; estimate +20–25 °C)
 - [ ] Order/reserve early: RP2354B, AOTA-B201610S3R3 inductor (thin JLC stock)
 - [ ] LC filter values (5th order, fc ≈ 30 MHz, 50 Ω)
-- [ ] Check SN74CBTLV3257 bandwidth/Ron×C at 65 MHz PCLK (D55); compare LCSC QFN88 footprint with WCH drawing
+- [ ] Compare LCSC QFN88 footprint with WCH drawing
 - [ ] Bench-check Si5351 → LC filter amplitude into ADC10065 (P2-2)
 - [ ] RP2350 funprog port (funprog_port.h, bitbang_rvswdio.h — PIO?) + USB HID interface compatible with minichlink pgm-esp32s2-ch32xx
 - [ ] (fallback) UART ISP on PB6/PB7 driven by RP2350
