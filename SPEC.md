@@ -1,9 +1,15 @@
 # rp417 — CH32H417 test board supervised by an RP2350
 
-Status: **draft / requirements gathering** (last update 2026-11-12)
+Status: **draft / requirements gathering** (last update 2026-11-13)
 
 All decisions are logged in `DECISIONS.md` (Dxx IDs).
 Block diagrams (mermaid) and pin plans: `docs/design/block-diagram.html` (proposal P1, pending approval).
+
+## 0. Guiding constraint (D22)
+
+**As simple as possible, minimal BOM.** Every part must earn its place: prefer firmware, CH32/RP2350
+on-chip resources, fewer rails and fewer connectors over extra ICs. Pending proposals are re-evaluated
+against this, and earlier decisions may be revisited where they cost many parts.
 
 ## 1. Intent
 

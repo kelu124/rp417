@@ -11,4 +11,5 @@
 | 2026-11-12 | 86f3365 | D20: generator output on 2-pin 2.54 mm header, no SMA |
 | 2026-11-12 | 76a563c | docs/design/block-diagram.html: mermaid block/power/capture diagrams, CH32 + RP2354B + interconnect pin plans, proposals P1-1..P1-10 |
 | 2026-11-12 | 02e7f84 | D21: DVP-only capture, UHSIF parked |
-| 2026-11-12 | (this commit) | SessionStart hook listing unanswered decision points (TODO open questions + untagged P-proposals) |
+| 2026-11-12 | f9fafca | SessionStart hook listing unanswered decision points (TODO open questions + untagged P-proposals) |
+| 2026-11-13 | (this commit) | D22: simplicity / minimal-BOM design constraint (SPEC §0) |
