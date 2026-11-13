@@ -303,7 +303,7 @@ Lx("430n", "LPF_MID", "GEN_OUT", mpn="LQW18ANR43G00D")
 C("68p", "GEN_OUT")
 R("49.9", "GEN_OUT", "GND")
 # input-select header (D34): 1 GEN, 2 ADC_IN, 3 EXT, 4 GND
-ic("J5", "HDR4", "GEN|ADC_IN|EXT|GND", "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical",
+ic("J5", "HDR4", "1x04 GEN/ADC_IN/EXT/GND", "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical",
    by_num={"1": "GEN_OUT", "2": "ADC_IN", "3": "EXT_IN", "4": "GND"})
 R("49.9", "EXT_IN", "GND")                       # external source termination
 ic("D5", "BAT54S", "BAT54S", "Package_TO_SOT_SMD:SOT-23",
