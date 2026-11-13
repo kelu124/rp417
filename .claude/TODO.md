@@ -1,7 +1,8 @@
 # TODO
 
 ## Open questions (user)
-- [ ] Answer P3-1..P3-6 (`docs/design/block-diagram.html` §7) — esp. P3-3 CH32H417QEU6 sourcing (0 JLC stock)
+- [ ] CH32H417QEU6 (user-sourced, D43): consign to JLC or hand-solder?
+- [ ] P3-2: single-sided assembly (all parts on top)?
 
 ## Datasheets
 - [ ] Get QingKe V5/V3 processor manuals (debug module details for RP-side SDI)

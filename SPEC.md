@@ -105,6 +105,7 @@ no H41x device file yet; WCHISPTool does support it).
   orientation gives USB3, the flipped one USB2 only. CC1/CC2 = 5.1 kΩ Rd. (CH32 USBSS has one TX/RX pair with P/N swap only,
   RM V1.8 `RB_LINK_SS_PLR`.)
 - **J2 – CH32 USBFS** USB-C (PA11/PA12): ISP port, second USB2 device — kept (D40).
+- ESD (D45): USBLC6-2SC6 on J1/J2/J3 D±; RClamp0524PATCT (0.3 pF) on the J1 SS pairs.
 - **J3 – RP2350** USB-C.
 - **Decided 2026-11-12** (SDI programming shares PB8/PB9): a 480 Mbps-capable analog switch on PB8/PB9
   (RP-controlled, TS3USB221A — D26) to select USB-connector ↔ RP2350 SWD. Default (unpowered/RP absent) = USB. Doubles as a
@@ -153,7 +154,7 @@ Decided 2026-11-12:
 - **Input select (D34):** 1×4 2.54 mm header `GEN | ADC_IN | EXT | GND`; jumper 1–2 = generator, 2–3 = external.
   EXT: 49.9 Ω termination, series R + clamp diodes. GEN + GND = scope probe point (replaces D20).
 - **ADC10065 (D30, D42):** **DNP** — user hand-solders their own part. CH32-only, on the CH32 domain. ADC_IN → AC coupling + VCOM bias → VIN+, VIN− tied to VCOM,
-  IRS = VDDA (2.0 Vpp full scale) (`datasheets/ADC10065.md`). D0–D9 → DVP primary pins (PE0–PE6, PF14, PF4, PF3).
+  IRS on a 3-way solder jumper, default VDDA = 2.0 Vpp full scale (GND 1.5 / open 1.0 Vpp) (D44, `datasheets/ADC10065.md`). D0–D9 → DVP primary pins (PE0–PE6, PF14, PF4, PF3).
 - **CH32 ADC + HSADC (D35):** ADC_IN → series R + AC cap + VDD33A/2 bias → PC0 (ADC_IN10 + HSADC_IN0). No anti-alias
   filter: 10–30 MHz sines alias at 5/20 MSPS (deterministic, fine for throughput).
 - **Counter pattern (D36):** the RP↔CH32 logic bus doubles as a DVP source on the **alternate DVP pins**
@@ -178,8 +179,8 @@ Decided 2026-11-12:
 - CH32H417 QFN128 is 12.3 × 12.3 mm, **0.35 mm pitch** (DS V1.9 §4.1) → fan-out needs ≤ 0.09 mm trace/space; check JLC
   capability and stencil before layout.
 - **Sourcing snapshot 2026-11-13** (JLC parts API, §8 of the design page): **CH32H417QEU6 = 0 stock at JLC** (C49363240) →
-  P3-3. Thin stock: RP2354B (524), RP2350 SMPS inductor AOTA-B201610S3R3 (143). ADC10065 is DNP (D42; LCSC has 4 + 30).
-  Almost every IC/connector is an Extended part.
+  **user-sourced** (D43; consign vs hand-solder to confirm). Thin stock: RP2354B (524), RP2350 SMPS inductor AOTA-B201610S3R3 (143). ADC10065 is DNP (D42; LCSC has 4 + 30).
+  Almost every IC/connector is an Extended part. Part selection = design page §8 (D47); genuine Si5351A-B-GTR (D46).
 
 ## 10. Open questions
 

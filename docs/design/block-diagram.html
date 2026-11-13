@@ -144,7 +144,7 @@ flowchart LR
 </pre></div>
 <ul>
 <li>Doubly-terminated filter: fundamental ≈ (4/π)·(3.3/2)·½ ≈ 1 V peak ⇒ ≈ 2 V<sub>pp</sub> ideal; the Si5351 driver impedance lowers it (estimate 1.5–2 V<sub>pp</sub>, bench-verify). Clean sine from ≈ 10 to 30 MHz; below f<sub>c</sub>/3 a shaped square.</li>
-<li>ADC10065 single-ended full scale = 2.0 / 1.5 / 1.0 V<sub>pp</sub> for IRS = VDDA / VSSA / floating (<code>ADC10065.md</code>) — see P3-1.</li>
+<li>ADC10065 single-ended full scale = 2.0 / 1.5 / 1.0 V<sub>pp</sub> for IRS = VDDA / VSSA / floating (<code>ADC10065.md</code>) — IRS on a 3-way solder jumper, default VDDA = 2 V<sub>pp</sub> (D44).</li>
 <li>CH32 ADCs get the same net with no anti-alias filter: 10–30 MHz aliases at 5/20 MSPS (deterministic, fine for throughput, D35).</li>
 </ul>
 
@@ -290,12 +290,12 @@ flowchart LR
 <div class="tbl"><table>
 <thead><tr><th>ID</th><th>Proposal</th><th>Why</th></tr></thead>
 <tbody>
-<tr><td>P3-1</td><td>ADC10065 IRS on a 3-way solder jumper (VDDA = 2 Vpp default / GND = 1.5 Vpp / open = 1 Vpp)</td><td>Generator amplitude is only estimated (1.5–2 Vpp); zero parts</td></tr>
+<tr><td>P3-1 <span class="tag d">D44</span></td><td>ADC10065 IRS on a 3-way solder jumper (VDDA = 2 Vpp default / GND = 1.5 Vpp / open = 1 Vpp)</td><td>Generator amplitude is only estimated (1.5–2 Vpp); zero parts</td></tr>
 <tr><td>P3-2</td><td>Single-sided assembly (all parts on top); supersedes the double-sided allowance of D19</td><td>Area budget ≈ 34 % of one side; cheaper JLC assembly</td></tr>
-<tr><td>P3-3</td><td>CH32H417QEU6 sourcing — 0 stock at JLC: (a) JLC global sourcing / pre-order, (b) consign parts bought elsewhere, (c) DNP + hand-solder</td><td>0.35 mm-pitch QFN128 by hand is hard → recommend (a) or (b)</td></tr>
-<tr><td>P3-4</td><td>USB ESD: USBLC6-2 on J1/J2/J3 D± + RClamp0524P on J1 SS pairs</td><td>≈ $0.40 total; 0.3 pF keeps USB3 SI; optional under D22</td></tr>
-<tr><td>P3-5</td><td>Clock chip = genuine SI5351A-B-GTR (not the MS5351M clone)</td><td>Clone rated 2.7–3.3 V (3V3 rail at its limit) and register/jitter equivalence unverified</td></tr>
-<tr><td>P3-6</td><td>Adopt §8 as the rev A part selection (TLV62569 buck, TPS22918 load switch, TS3USB221A, top-mount 24-pin USB-C, TF-01A, 10 pF 12 MHz crystal)</td><td>All stocked; parts chosen for minimum count (D22)</td></tr>
+<tr><td>P3-3 <span class="tag d">D43</span></td><td>CH32H417QEU6 sourcing — 0 stock at JLC: (a) JLC global sourcing / pre-order, (b) consign parts bought elsewhere, (c) DNP + hand-solder</td><td>0.35 mm-pitch QFN128 by hand is hard → recommend (a) or (b)</td></tr>
+<tr><td>P3-4 <span class="tag d">D45</span></td><td>USB ESD: USBLC6-2 on J1/J2/J3 D± + RClamp0524P on J1 SS pairs</td><td>≈ $0.40 total; 0.3 pF keeps USB3 SI; optional under D22</td></tr>
+<tr><td>P3-5 <span class="tag d">D46</span></td><td>Clock chip = genuine SI5351A-B-GTR (not the MS5351M clone)</td><td>Clone rated 2.7–3.3 V (3V3 rail at its limit) and register/jitter equivalence unverified</td></tr>
+<tr><td>P3-6 <span class="tag d">D47</span></td><td>Adopt §8 as the rev A part selection (TLV62569 buck, TPS22918 load switch, TS3USB221A, top-mount 24-pin USB-C, TF-01A, 10 pF 12 MHz crystal)</td><td>All stocked; parts chosen for minimum count (D22)</td></tr>
 </tbody></table></div>
 
 <h2 id="bom">8. Parts list — ICs and key parts (JLC/LCSC snapshot 2026-11-13)</h2>
@@ -303,7 +303,7 @@ flowchart LR
 <div class="tbl"><table>
 <thead><tr><th>Ref</th><th>Function</th><th>MPN</th><th>LCSC</th><th>Package</th><th>Stock</th><th>Price</th><th>Class</th><th>Note</th></tr></thead>
 <tbody>
-<tr><td>U1</td><td>MCU</td><td>CH32H417QEU6</td><td>C49363240</td><td>QFN-128 12.3 mm, 0.35 mm</td><td><b>0</b></td><td>3.93 (list)</td><td>E</td><td>⚠ no stock — P3-3</td></tr>
+<tr><td>U1</td><td>MCU</td><td>CH32H417QEU6</td><td>C49363240</td><td>QFN-128 12.3 mm, 0.35 mm</td><td><b>0</b></td><td>3.93 (list)</td><td>E</td><td><b>user-supplied</b> (D43) — 0 JLC stock</td></tr>
 <tr><td>U2</td><td>Supervisor</td><td>RP2354B</td><td>C39843328</td><td>QFN-80 10×10</td><td>524</td><td>1.44 / 1.37</td><td>E</td><td>fallback RP2350B C42415655 + flash</td></tr>
 <tr><td>U3</td><td>Clocks</td><td>SI5351A-B-GTR</td><td>C504891</td><td>MSOP-10</td><td>12 248</td><td>1.04 / 0.80</td><td>E</td><td>reel of -GT; clone MS5351M C1509083 — P3-5</td></tr>
 <tr><td>Y1</td><td>Si5351 xtal 25 MHz 10 pF</td><td>X322525MMB4SI</td><td>C70582</td><td>3225</td><td>105 267</td><td>0.079</td><td>E</td><td></td></tr>
