@@ -27,9 +27,10 @@ open(os.path.join(HW, "lib", "rp417.kicad_sym"), "w").write(lib)
 
 # ---------------------------------------------------------------- symbols
 S = {k: Sym(*v) for k, v in {
+    "CBT": ("lcsc", "SN74CBTLV3257PWR"),
     "R": ("Device", "R"), "C": ("Device", "C"), "L": ("Device", "L"), "FB": ("Device", "FerriteBead_Small"),
     "PWR_FLAG": ("power", "PWR_FLAG"), "HOLE": ("Mechanical", "MountingHole"),
-    "CH32": ("lcsc", "CH32H417QEU6_C49363240"), "RP": ("lcsc", "RP2354B_C39843328"),
+    "CH32": ("lcsc", "CH32H417MEU6_C54973456"), "RP": ("lcsc", "RP2354B_C39843328"),
     "SI5351": ("lcsc", "SI5351A-B-GTR"), "TS3": ("lcsc", "TS3USB221ARSER"),
     "XTAL": ("lcsc", "X322512MMB4SI"), "SW": ("lcsc", "TS-1187A-B-A-B"),
     "RCLAMP": ("lcsc", "RClamp0524PATCT"), "TPS22918": ("lcsc", "TPS22918DBVR"),
@@ -188,36 +189,38 @@ R("27", "J3_DM", "RP_USB_DM")
 # =================================================================== 3. CH32
 sheet("ch32", "CH32H417", "A1")
 ch = {
-    # power (D23: VIO18 = VDDIO = 3V3)
-    "VDD33": "+3V3_CH", "VBAT": "+3V3_CH", "VDDIO": "+3V3_CH", "VIO18": "+3V3_CH",
-    "VDD33A": "+3V3A_CH", "VREFP": "+3V3A_CH", "VSSA": "GND", "VSS": "GND",
+    # CH32H417MEU6 QFN88 (D54). power (D23: VIO18 = VDDIO = 3V3); no VREFP/VBAT/VSSA pins on QFN88
+    "VDD33": "+3V3_CH", "VDDIO": "+3V3_CH", "VIO18": "+3V3_CH", "VDD33A": "+3V3A_CH", "EP": "GND",
     "VDDK": "VDDK", "VDD12A": "VDD12A",
     "XI": "CH_XI", "XO": "CH_XO", "NRST": "CH_NRST",
-    # DVP primary set = ADC10065 (D30)
-    "PE0": "ADC_D0", "PE1": "ADC_D1", "PE2": "ADC_D2", "PE3": "ADC_D3", "PE4": "ADC_D4", "PF14": "ADC_D5",
-    "PE5": "ADC_D6", "PE6": "ADC_D7", "PF4": "ADC_D8", "PF3": "ADC_D9", "PF13": "CAP_PCLK", "PE7": "CAP_PCLK",
-    # DVP alternate set = RP logic bus / counter (D36)
-    "PC6": "LOGIC0", "PC7": "LOGIC1", "PB13": "LOGIC2", "PF5": "LOGIC3", "PD12": "LOGIC4", "PD13": "LOGIC5",
-    "PD14": "LOGIC6", "PD15": "LOGIC7", "PA6": "LOGIC8",
+    # DVP, one pin set fed by the 2:1 capture switch (D55): ADC10065 or RP counter
+    "PE0": "CAP_D0", "PE1": "CAP_D1", "PB13": "CAP_D2", "PE3": "CAP_D3", "PE4": "CAP_D4", "PF14": "CAP_D5",
+    "PE5": "CAP_D6", "PE6": "CAP_D7", "PF4": "CAP_D8", "PF3": "CAP_D9", "PB12": "CAP_PCLK",
+    "PF2": "CAP_PCLK",                 # TIM8_ETR (AF3): sample counter
     "PA4": "DVP_HSYNC", "PA5": "DVP_VSYNC",
+    # RP<->CH32 logic bus, general GPIO (D03)
+    "PD12": "LOGIC0", "PD13": "LOGIC1", "PD14": "LOGIC2", "PD15": "LOGIC3", "PD10": "LOGIC4", "PD11": "LOGIC5",
+    "PC6": "LOGIC6", "PC7": "LOGIC7",
     "PC0": "CH_AIN0",
-    # microSD (D04)
+    # microSD (D04), SDMMC_RM=00
     "PD2": "SD_CMD", "PC12": "SD_CLK", "PC8": "SD_D0", "PC9": "SD_D1", "PC10": "SD_D2", "PC11": "SD_D3",
     "PD0": "SD_CD",
     # QSPI2 master (D38)
     "PE10": "QSPI_SCK", "PE11": "QSPI_CS", "PE12": "QSPI_IO0", "PE13": "QSPI_IO1", "PE14": "QSPI_IO2",
     "PE15": "QSPI_IO3",
-    "PB6": "CH_UART_TX", "PB7": "CH_UART_RX", "PB10": "CH_SCL", "PB11": "CH_SDA",
-    "PA8": "CH_MARK", "PB0": "CH_MCO",
+    "PA9": "CH_UART_TX", "PA10": "CH_UART_RX",   # USART1 = UART ISP pins on QFN88 (EVB ref.)
+    "PB10": "CH_SCL", "PB11": "CH_SDA",
+    "PB14": "CH_MARK",                 # TIM9_CH1 (AF2)
+    "PB0": "CH_MCO",
     "PB8": "CH_USBHS_DP", "PB9": "CH_USBHS_DM", "PA11": "J2_DM", "PA12": "J2_DP",
     "SSTXA": "CH_SSTX_P", "SSTXB": "CH_SSTX_N", "SSRXA": "SS_RX_P", "SSRXB": "SS_RX_N",
 }
-ic("U1", "CH32", "CH32H417QEU6", "lcsc:QFN-128_L12.3-W12.3-P0.35-TL-EP9.0", by_name=ch, rest=None,
-   lcsc="C49363240", mpn="CH32H417QEU6 (user-supplied, D43)")
-# decoupling per DS V1.9 1.4.3
+ic("U1", "CH32", "CH32H417MEU6", "lcsc:QFN-88_L10.0-W10.0-P0.40-BL-EP7.7", by_name=ch, rest=None,
+   lcsc="C54973456", mpn="CH32H417MEU6 (user-supplied, D43/D54)")
+# decoupling per DS V1.9 1.4.3 (QFN88 pin counts)
 for _ in range(3): C("100n", "+3V3_CH")          # VDD33 x3
 C("10u", "+3V3_CH")
-for _ in range(7): C("100n", "+3V3_CH")          # VDDIO x7
+for _ in range(2): C("100n", "+3V3_CH")          # VDDIO x2
 for _ in range(3): C("100n", "+3V3_CH")          # VIO18 x3
 C("2.2u", "+3V3_CH", fp="C0402")
 for _ in range(2): C("100n", "VDDK")
@@ -249,7 +252,10 @@ rp = {
     "GPIO4": "MGMT_SDA", "GPIO5": "MGMT_SCL",
     "GPIO6": "QSPI_SCK_RP", "GPIO7": "QSPI_CS_RP", "GPIO8": "QSPI_IO0_RP", "GPIO9": "QSPI_IO1_RP",
     "GPIO10": "QSPI_IO2_RP", "GPIO11": "QSPI_IO3_RP",
-    **{f"GPIO{12 + i}": f"LOGIC{i}_RP" for i in range(9)},          # GPIO12-20
+    **{f"GPIO{12 + i}": f"LOGIC{i}_RP" for i in range(8)},          # GPIO12-19 logic bus
+    **{f"GPIO{20 + i}": f"CNT_D{i}_RP" for i in range(10)},         # GPIO20-29 PIO counter D0-D9
+    "GPIO30": "CNT_PCLK_RP",                                         # PIO side-set clock
+    "GPIO42_ADC2": "CAP_SEL",                                        # 2:1 capture switch select
     "GPIO31": "HSYNC_RP", "GPIO32": "VSYNC_RP", "GPIO33": "MARK_RP", "GPIO34": "MCO_RP",
     "GPIO35": "SWIO_RP", "GPIO36": "SWCLK_RP", "GPIO37": "CH_NRST_RP", "GPIO38": "CH_PWR_EN",
     "GPIO39": "USB_SEL", "GPIO40_ADC0": "ADC_V3V3CH", "GPIO41_ADC1": "ADC_VSYS",
@@ -283,7 +289,7 @@ R("4.7k", "+3V3", "MGMT_SDA")
 R("4.7k", "+3V3", "MGMT_SCL")
 
 # =================================================================== 5. CLOCKS + ANALOG
-sheet("analog", "Clocks + analog", "A2")
+sheet("analog", "Clocks + analog + capture switch", "A2")
 ic("U3", "SI5351", "SI5351A-B-GTR", "lcsc:MSOP-10_L3.0-W3.0-P0.50-LS5.0-BL",
    by_name={"VDD": "+3V3", "VDDO": "+3V3", "GND": "GND", "XA": "SI_XA", "XB": "SI_XB", "SCL": "MGMT_SCL",
             "SDA": "MGMT_SDA", "CLK0": "SI_CLK0", "CLK1": "SI_CLK1", "CLK2": "SI_CLK2"}, lcsc="C504891")
@@ -293,7 +299,7 @@ C("1u", "+3V3")
 ic("Y1", "XTAL", "25MHz 10pF", "lcsc:CRYSTAL-SMD_4P-L3.2-W2.5-BL",
    by_name={"OSC1": "SI_XA", "OSC2": "SI_XB", "GND": "GND"}, lcsc="C70582", mpn="X322525MMB4SI")
 R("33", "SI_CLK0", "ADC_CLK")      # D29 series R on clock lines
-R("33", "SI_CLK1", "CAP_PCLK")
+R("33", "SI_CLK1", "SI_PCLK")
 # generator (D33): 50R source, 5th-order Butterworth C-L-C-L-C, fc 30 MHz, 50R load
 R("49.9", "SI_CLK2", "LPF_IN")
 C("68p", "LPF_IN")
@@ -335,6 +341,21 @@ C("100n", "CH_AIN_AC", "CH_AIN0")
 R("10k", "+3V3A_CH", "CH_AIN0")
 R("10k", "CH_AIN0", "GND")
 
+# 2:1 capture switch (D55): S=0 -> B1 = ADC10065 + Si5351 PCLK (default), S=1 -> B2 = RP counter.
+# Powered from the CH32 domain: Ioff isolates both sides when the CH32 is off (D29).
+cap_a = [f"CAP_D{i}" for i in range(10)] + ["CAP_PCLK", None]
+cap_b1 = [f"ADC_D{i}" for i in range(10)] + ["SI_PCLK", None]
+cap_b2 = [f"CNT_D{i}" for i in range(10)] + ["CNT_PCLK", None]
+for k in range(3):
+    m = {"S": "CAP_SEL", "~{OE}": "GND", "GND": "GND", "VCC": "+3V3_CH"}
+    for ch_ in range(4):
+        i = 4 * k + ch_
+        m[f"{ch_ + 1}A"], m[f"{ch_ + 1}B1"], m[f"{ch_ + 1}B2"] = cap_a[i], cap_b1[i], cap_b2[i]
+    ic(f"U{11 + k}", "CBT", "SN74CBTLV3257PWR", "lcsc:TSSOP-16_L5.0-W4.4-P0.65-LS6.4-BL", by_name=m,
+       lcsc="C7637")
+    C("100n", "+3V3_CH")
+R("100k", "CAP_SEL", "GND")                      # default = ADC10065
+
 # =================================================================== 6. microSD + RP<->CH32 links
 sheet("links", "microSD + RP-CH32 links", "A2")
 ic("J4", "TF", "TF-01A", "lcsc:TF-SMD_TF-01A",
@@ -350,7 +371,8 @@ links = [("RP_UART_TX", "CH_UART_RX", "220"), ("CH_UART_TX", "RP_UART_RX", "220"
          ("QSPI_SCK", "QSPI_SCK_RP", "33"), ("QSPI_CS", "QSPI_CS_RP", "33"),
          ("QSPI_IO0", "QSPI_IO0_RP", "33"), ("QSPI_IO1", "QSPI_IO1_RP", "33"),
          ("QSPI_IO2", "QSPI_IO2_RP", "33"), ("QSPI_IO3", "QSPI_IO3_RP", "33"),
-         *[(f"LOGIC{i}_RP", f"LOGIC{i}", "33") for i in range(9)],
+         *[(f"LOGIC{i}_RP", f"LOGIC{i}", "33") for i in range(8)],
+         *[(f"CNT_D{i}_RP", f"CNT_D{i}", "33") for i in range(10)], ("CNT_PCLK_RP", "CNT_PCLK", "33"),
          ("HSYNC_RP", "DVP_HSYNC", "33"), ("VSYNC_RP", "DVP_VSYNC", "33"),
          ("CH_MARK", "MARK_RP", "33"), ("CH_MCO", "MCO_RP", "33"),
          ("CH_NRST_RP", "CH_NRST", "1k")]

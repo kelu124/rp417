@@ -21,4 +21,5 @@
 | 2026-11-13 | (see git log) | QFN128 pitch source + corrected fan-out note (WCH EVB footprint: 0.16 mm pads, 0.19 mm gap) |
 | 2026-11-13 | (this commit) | D48 parts on both sides; design page status block + side assignment; mermaid diagrams parse-checked |
 | 2026-11-13 | (see git log) | hw/: generated KiCad schematic rev A draft (6 sheets, 202 parts, 150 nets, ERC 0), LCSC footprints, generator |
-| 2026-11-13 | (this commit) | Board generator (placement with D53 perpendicular-passive rule, zones, DSN), finish/DRC script, project rules, hw/README, D49–D53 |
+| 2026-11-13 | (see git log) | Board generator (placement with D53 perpendicular-passive rule, zones, DSN), finish/DRC script, project rules, hw/README, D49–D53 |
+| 2026-11-13 | (this commit) | D54 CH32H417MEU6 (QFN88), D55 2:1 capture switch back, D56 QFN88 pin moves; schematic + placement regenerated; SPEC/design page updated |

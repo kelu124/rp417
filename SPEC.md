@@ -1,6 +1,6 @@
 # rp417 — CH32H417 test board supervised by an RP2350
 
-Status: **draft / requirements gathering** (last update 2026-11-13)
+Status: **rev A schematic + draft layout in `hw/`** (last update 2026-11-13)
 
 All decisions are logged in `DECISIONS.md` (Dxx IDs).
 Block diagrams (mermaid), pin plans, BOM and area budget: `docs/design/block-diagram.html` (rev A, redrawn 2026-11-13
@@ -42,13 +42,15 @@ The board must also work **without the RP2350** (CH32 standalone).
 Source: `datasheets/CH32H417DS0_V1.9_en.md` (V1.9; was checked on V1.4 first), `datasheets/CH32H417RM_V1.8_en.md`, `datasheets/CH32H417_EVB_Reference_EN.md`,
 `datasheets/CH32H417_UHSIF_RM_EN.md`.
 
-- **Package: CH32H417QEU (QFN128).** The QFN68 (WEU) has *no* BOOT/ISP function.
+- **Package: CH32H417MEU6 (QFN88, 10 × 10 mm, 0.4 mm pitch)** (D54, user-supplied; supersedes the QFN128 choice D12).
+  BOOT/ISP: QFN128 + QFN88 yes, QFN68 (WEU) **no** (`CH32H417_EVB_Reference_EN.md` §ISP table). QFN88 UART ISP = **PA9/PA10**.
+  QFN88 lacks PE2, PE7, PF13, PA6, PA8, PB6, PB7, VREFP, VBAT (DS V1.9 pin table).
 - **Lot number:** DS V1.4 said lot-digit-5 = 0 parts lack GPHA/Ethernet/SerDes/CAN; **V1.9 no longer says so**.
   The EVB reference still says WCHISPTool download needs digit 5 ≠ 0 → check on receipt.
 - **No BOOT0 pin.** Bootloader entry (56 KB system flash):
   - USB ISP on **USBFS PA11 (DM) / PA12 (DP)**: at power-on, DP high + DM low ⇒ BOOT mode.
     DP must not stay pulled up afterwards.
-  - UART ISP on **PB6 (TX) / PB7 (RX)** (QFN128), "key-free": tool waits, power-cycle enters BOOT.
+  - UART ISP on **PB6 (TX) / PB7 (RX)** on QFN128, **PA9 (TX) / PA10 (RX) on QFN88 (our part)**, "key-free": tool waits, power-cycle enters BOOT.
     Needs an option bit enabled (factory default: enabled).
   - Blank chip enters BOOT automatically.
   ⇒ **controlling CH32 power is itself the programming mechanism.**
@@ -96,7 +98,7 @@ Claims from `userinputs/tocheck.md` — checked:
 - ⚠️ To verify on hardware: funprog + H41x flash path (minichlink lists the chip, no H417 report seen yet).
 
 **Fallback: bootloader ISP** (no debugger needed) — RP2350 power-cycles the CH32 and talks the WCH
-UART ISP protocol on PB6/PB7, or forces USBFS DP high at power-on for USB ISP (note: `wchisp` has
+UART ISP protocol on PA9/PA10 (QFN88, D54), or forces USBFS DP high at power-on for USB ISP (note: `wchisp` has
 no H41x device file yet; WCHISPTool does support it).
 
 ## 5. USB
@@ -147,24 +149,22 @@ Decided 2026-11-12:
 
 ## 8. Analog / capture chain (R6–R8)
 
-- **Clocks (D32):** Si5351A CLK0 → ADC10065 CLK; CLK1 (same PLL A, phase-tunable) → CH32 DVP PCLK (PF13) + TIM1_ETR (PE7)
+- **Clocks (D32):** Si5351A CLK0 → ADC10065 CLK; CLK1 (same PLL A, phase-tunable) → capture switch B1 → CH32 PCLK (PB12) + TIM8_ETR (PF2)
   for sample counting; CLK2 (PLL B) → generator. Outputs disabled by the RP before CH32 power-off (D29).
 - **Generator (D31, D33):** Si5351 CLK2 → 50 Ω → 5th-order LC low-pass, f<sub>c</sub> ≈ 30 MHz, doubly terminated → ≈ 2 Vpp sine
   (ideal ≈ (4/π)·(3.3/2)·½ ≈ 2 Vpp; Si5351 driver impedance lowers it — estimate 1.5–2 Vpp, ⚠️ bench-verify). Clean sine ≈ 10–30 MHz; below f<sub>c</sub>/3 a shaped square (fine for throughput, D05).
 - **Input select (D34):** 1×4 2.54 mm header `GEN | ADC_IN | EXT | GND`; jumper 1–2 = generator, 2–3 = external.
   EXT: 49.9 Ω termination, series R + clamp diodes. GEN + GND = scope probe point (replaces D20).
 - **ADC10065 (D30, D42):** **DNP** — user hand-solders their own part. CH32-only, on the CH32 domain. ADC_IN → AC coupling + VCOM bias → VIN+, VIN− tied to VCOM,
-  IRS on a 3-way solder jumper, default VDDA = 2.0 Vpp full scale (GND 1.5 / open 1.0 Vpp) (D44, `datasheets/ADC10065.md`). D0–D9 → DVP primary pins (PE0–PE6, PF14, PF4, PF3).
+  IRS on a 3-way solder jumper, default VDDA = 2.0 Vpp full scale (GND 1.5 / open 1.0 Vpp) (D44, `datasheets/ADC10065.md`). D0–D9 → 33 Ω → capture switch B1 → DVP (D55).
 - **CH32 ADC + HSADC (D35):** ADC_IN → series R + AC cap + VDD33A/2 bias → PC0 (ADC_IN10 + HSADC_IN0). No anti-alias
   filter: 10–30 MHz sines alias at 5/20 MSPS (deterministic, fine for throughput).
-- **Counter pattern (D36):** the RP↔CH32 logic bus doubles as a DVP source on the **alternate DVP pins**
-  (DS V1.9 Table 2-2-23): RP GPIO12–19 → D0 PC6, D1 PC7, D2 PB13, D3 PF5, D4 PD12, D5 PD13, D6 PD14, D7 PD15 (AF13);
-  RP GPIO20 (PIO side-set) → PCLK PA6 (AF13). CH32 firmware selects ADC10065 or RP by pin AF — no switch.
-  D8/D9 have no free alternate (PC10/PC12 are SDMMC), so the counter is 8-bit, captured in 10-bit mode (16-bit words,
-  130 MB/s at 65 MS/s); host checks the low 8 bits. RM V1.8 §9.2: each pin has its own AF0–AF15 mux and a pin in
-  input mode is not connected to any alternate-function input → only the AF-configured set feeds the DVP. ✅ (RM; still
-  confirm on hardware that two sets are never both enabled by firmware).
-  Series R on these lines must stay small (≈ 33–47 Ω source termination) for ≥ 65 MHz edges.
+- **Counter pattern (D55, supersedes D36):** 2:1 capture switch, 3 × SN74CBTLV3257PWR on D0–D9 + PCLK, powered from
+  the CH32 domain (Ioff isolation), S = RP GPIO42 `CAP_SEL`, pull-down → ADC10065 by default. One DVP pin set on QFN88:
+  D0 PE0, D1 PE1, D2 PB13, D3 PE3, D4 PE4, D5 PF14, D6 PE5, D7 PE6, D8 PF4, D9 PF3, PCLK **PB12** (the only PCLK pin on
+  QFN88), HSYNC PA4, VSYNC PA5 (DS V1.9 Table 2-2-23). RP PIO counter = GPIO20–29 (D0–D9) + side-set PCLK GPIO30 → full
+  10-bit counter. Sample counter: TIM8_ETR on PF2 (D56).
+- **Logic bus (D03, D56):** 8 general GPIO, RP GPIO12–19 ↔ CH32 PD12–PD15, PD10, PD11, PC6, PC7 (33 Ω series).
 - **Sync (D37):** RP2350 drives HSYNC (PA4) and VSYNC (PA5) in both modes. DVP in JPEG mode: HSYNC may be static,
   buffer switching by DMA length = COL_NUM (RM V1.8 §29.2.2, §29.3.1) → no PCLK alignment needed.
   ⚠️ To verify on hardware: gapless continuous streaming.
@@ -177,7 +177,7 @@ Decided 2026-11-12:
 - Outline 63.5 × 88.9 mm (D19). **Area budget (2026-11-13): ≈ 1900 mm² of parts+keep-outs ≈ 34 % of one side** → fits;
   **parts on both sides where it helps** (D48): decoupling, series-R arrays, bias networks, ORing and load switch on the
   bottom; connectors, ICs, crystals, analog and ESD on top. Details + placement sketch: `docs/design/block-diagram.html` §9.
-- CH32H417 QFN128 is 12.3 × 12.3 mm, **0.35 mm pitch** (DS V1.9 ch. 4 package table; confirmed by WCH's own EVB footprint
+- (Superseded by D54: now QFN88 10 × 10 mm, 0.4 mm pitch, LCSC footprint `QFN-88_L10.0-W10.0-P0.40-BL-EP7.7`.) The QFN128 is 12.3 × 12.3 mm, **0.35 mm pitch** (DS V1.9 ch. 4 package table; confirmed by WCH's own EVB footprint
   `projects/sdk/ch32h417/EVT/PUB/SCHPCB/CH32H417QEU6-R0` "QFN128_12.3X12.3": single row of 32 pads per side, 0.16 × 0.8 mm,
   0.19 mm gap, + exposed pad). Fan-out leaves each pad outward, so ~0.1–0.127 mm traces suffice (no routing between pads);
   check JLC 6-layer pad/solder-mask-dam rules and the stencil for 0.19 mm gaps. Reuse WCH's footprint.
