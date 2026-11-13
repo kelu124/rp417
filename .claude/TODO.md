@@ -11,7 +11,8 @@
 - [ ] Hardware: JPEG-mode continuous DVP capture with static HSYNC is gapless (D37; RM supports it)
 - [ ] Hardware: measure CH32 temperature at full USB3 load (D25; estimate +20–25 °C)
 - [ ] Order/reserve early: RP2354B, AOTA-B201610S3R3 inductor (thin JLC stock)
-- [ ] LC filter values (5th order, fc ≈ 30 MHz, 50 Ω) + check JLC 0.35 mm-pitch capability
+- [ ] LC filter values (5th order, fc ≈ 30 MHz, 50 Ω)
+- [ ] JLC: solder-mask dam + stencil for the QFN128 0.19 mm pad gap; import WCH EVB footprint QFN128_12.3X12.3
 - [ ] Bench-check Si5351 → LC filter amplitude into ADC10065 (P2-2)
 - [ ] RP2350 funprog port (funprog_port.h, bitbang_rvswdio.h — PIO?) + USB HID interface compatible with minichlink pgm-esp32s2-ch32xx
 - [ ] (fallback) UART ISP on PB6/PB7 driven by RP2350

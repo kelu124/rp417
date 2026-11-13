@@ -358,7 +358,7 @@ flowchart LR
 <ul>
 <li><b>Fits on one side with room for routing</b> (rule of thumb: ≤ 50–60 % placement density). Double-sided assembly is not needed → proposal P3-2.</li>
 <li>Placement sketch: J1 + J2 on one short edge with the CH32 right behind J1 (SS pairs &lt; 15 mm); J3 on the opposite short edge next to the RP2354B; microSD at a corner beside the CH32 (SDMMC on PC8–PC12/PD2 side); ADC10065 + filter + header along a long edge next to the DVP pins (PE0–PE6, PF3/PF4/PF14), away from J1; logic/counter lines (PC6/PC7/PB13/PF5/PD12–15/PA6) run RP → CH32 across the middle, length-matched loosely (≤ 5 mm skew at 75 MHz).</li>
-<li>⚠ 0.35 mm pitch QFN128: needs ≤ 0.09 mm (3.5 mil) trace/space to fan out under 6-layer JLC rules — check JLC capability + stencil before layout.</li>
+<li>0.35 mm-pitch QFN128 (DS V1.9 ch. 4; WCH EVB footprint <code>QFN128_12.3X12.3</code>: pads 0.16 × 0.8 mm, 0.19 mm gap). Pads fan out outward, so ~0.1–0.127 mm traces are enough; check JLC solder-mask dam / stencil for 0.19 mm gaps. Reuse WCH's footprint.</li>
 </ul>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>

@@ -176,8 +176,10 @@ Decided 2026-11-12:
 - KiCad, JLCPCB fab + assembly, 6 layers (D18).
 - Outline 63.5 × 88.9 mm (D19). **Area budget (2026-11-13): ≈ 1900 mm² of parts+keep-outs ≈ 34 % of one side** → fits;
   single-sided assembly proposed (P3-2). Details + placement sketch: `docs/design/block-diagram.html` §9.
-- CH32H417 QFN128 is 12.3 × 12.3 mm, **0.35 mm pitch** (DS V1.9 §4.1) → fan-out needs ≤ 0.09 mm trace/space; check JLC
-  capability and stencil before layout.
+- CH32H417 QFN128 is 12.3 × 12.3 mm, **0.35 mm pitch** (DS V1.9 ch. 4 package table; confirmed by WCH's own EVB footprint
+  `projects/sdk/ch32h417/EVT/PUB/SCHPCB/CH32H417QEU6-R0` "QFN128_12.3X12.3": single row of 32 pads per side, 0.16 × 0.8 mm,
+  0.19 mm gap, + exposed pad). Fan-out leaves each pad outward, so ~0.1–0.127 mm traces suffice (no routing between pads);
+  check JLC 6-layer pad/solder-mask-dam rules and the stencil for 0.19 mm gaps. Reuse WCH's footprint.
 - **Sourcing snapshot 2026-11-13** (JLC parts API, §8 of the design page): **CH32H417QEU6 = 0 stock at JLC** (C49363240) →
   **user-sourced** (D43; consign vs hand-solder to confirm). Thin stock: RP2354B (524), RP2350 SMPS inductor AOTA-B201610S3R3 (143). ADC10065 is DNP (D42; LCSC has 4 + 30).
   Almost every IC/connector is an Extended part. Part selection = design page §8 (D47); genuine Si5351A-B-GTR (D46).

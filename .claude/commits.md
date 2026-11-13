@@ -17,4 +17,5 @@
 | 2026-11-13 | d27523d | D32–D40: Si5351 plan, LC generator, input-select header, CH32 ADC feed, counter pattern on DVP alternate pins via logic bus, RP sync in JPEG mode, QSPI, AVCC ferrite, keep J2 |
 | 2026-11-13 | 1e793a6 | D41: no external 5 V input, 3 × LM66100 |
 | 2026-11-13 | 19cdeb6 | Design page rev A redraw, BOM with JLC stock, area budget, RM checks, D42 ADC10065 DNP, P3-1..P3-6 |
-| 2026-11-13 | (this commit) | D43–D47: CH32 user-sourced, IRS jumper 2 Vpp default, USB ESD, genuine Si5351, rev A part selection |
+| 2026-11-13 | 31868e2 | D43–D47: CH32 user-sourced, IRS jumper 2 Vpp default, USB ESD, genuine Si5351, rev A part selection |
+| 2026-11-13 | (this commit) | QFN128 pitch source + corrected fan-out note (WCH EVB footprint: 0.16 mm pads, 0.19 mm gap) |
