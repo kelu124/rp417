@@ -1,13 +1,15 @@
 # TODO
 
 ## Open questions (user)
-- [ ] Review remaining proposals P1-9, P1-10 and P2-1..P2-9 (`docs/design/block-diagram.html` §7) → log as D32+
+- [ ] P2-8: drop the external 5 V input (3 × LM66100 instead of 4)?
 
 ## Datasheets
 - [ ] Get QingKe V5/V3 processor manuals (debug module details for RP-side SDI)
 - [ ] Check ADC10065 availability/lifecycle status
 
 ## Design
+- [ ] RM: confirm DVP takes data only from the AF-selected pin set (D36)
+- [ ] RM/hardware: JPEG-mode continuous DVP capture with static HSYNC is gapless (D37)
 - [ ] Redraw block diagram / power tree / pin plans in `docs/design/block-diagram.html` for D22–D31 (freed RP GPIO20–32, 44–47)
 - [ ] Verify CH32 internal-LDO dissipation at full USB3 load (D25)
 - [ ] Bench-check Si5351 → LC filter amplitude into ADC10065 (P2-2)

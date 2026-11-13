@@ -32,7 +32,7 @@ The board must also work **without the RP2350** (CH32 standalone).
 | R5 | CH32 SD card via SDIO/SDMMC | agreed |
 | R6 | ADC10065 (10-bit, 65 MSPS) parallel output into the CH32 | agreed — purpose: **data throughput** tests; CH32-only, jumper-selected input (D30) |
 | R7 | Signal generator piloted by the RP2350, feeding the ADC10065 | **changed (D31): AD9851 dropped, Si5351 filtered output** |
-| R8 | A stimulus also feeds the CH32's own ADCs: 12-bit ADC (5 MSPS) **and** 10-bit HSADC (20 MSPS) | agreed — source to decide now that the DDS is gone (P2) |
+| R8 | A stimulus also feeds the CH32's own ADCs: 12-bit ADC (5 MSPS) **and** 10-bit HSADC (20 MSPS) | agreed — fed from the generator / external net (D35) |
 | R9 | Back-feeding protection on both chips (power rails and I/O) | agreed — see §6 |
 | R10 | Board usable without the RP2350's USB host link (RP2350 is **permanently on board**) | **decided** — see §7 |
 | ~~R11~~ | ~~On-board WCH-LinkE~~ | **removed for now** (2026-11-12) |
@@ -104,7 +104,7 @@ no H41x device file yet; WCHISPTool does support it).
 - **J1 – CH32 USB3** USB-C: SS pairs + USBHS D+/D− (PB8/PB9). **Single-orientation SS** (D27): no orientation mux; one plug
   orientation gives USB3, the flipped one USB2 only. CC1/CC2 = 5.1 kΩ Rd. (CH32 USBSS has one TX/RX pair with P/N swap only,
   RM V1.8 `RB_LINK_SS_PLR`.)
-- **J2 – CH32 USBFS** USB-C (PA11/PA12): ISP port, second USB2 device.
+- **J2 – CH32 USBFS** USB-C (PA11/PA12): ISP port, second USB2 device — kept (D40).
 - **J3 – RP2350** USB-C.
 - **Decided 2026-11-12** (SDI programming shares PB8/PB9): a 480 Mbps-capable analog switch on PB8/PB9
   (RP-controlled, TS3USB221A — D26) to select USB-connector ↔ RP2350 SWD. Default (unpowered/RP absent) = USB. Doubles as a
@@ -128,7 +128,7 @@ no H41x device file yet; WCHISPTool does support it).
   (VIO18 tied to VDDIO, D23), microSD, ADC10065 (VDDA 2.7–3.6 V, `datasheets/ADC10065.md`).
 - **No external 1V2**: CH32 internal LDO supplies VDDK/VDD12A from VDD33 (`CH32H417DS0_V1.9_en.md` §1.4.3; external
   supply optional, only to reduce heat). ⚠️ To verify: CH32 dissipation at full USB3 load.
-- VDD33A/VREFP filtering (ferrite+caps vs LDO): open (P2).
+- VDD33A/VREFP: CH32 3V3 via ferrite + caps, no LDO (D39).
 - Rail order to respect: VDD33 ≥ VDD33A ≥ VDDIO ≥ VIO18 (DS V1.9 Table 3-2) — satisfied by a single 3V3 rail.
 
 ## 7. Standalone mode (R10)
@@ -144,20 +144,27 @@ Decided 2026-11-12:
 
 ## 8. Analog / capture chain (R6–R8)
 
-- **Generator (D31): no DDS.** Si5351A clock output → low-pass filter → test signal. AD9851 (D06) dropped.
-  Filter / clean-sine approach: proposal P2-2.
-- **ADC10065 (D30)** wired directly to the CH32 DVP (D[9:0]), clock from the Si5351, nothing else on the bus.
-  ADC10065 has no clock output and no output enable (only STBY). Single-ended input allowed: VIN− tied to VCOM,
-  VIN+ swing 2.0 / 1.5 / 1.0 Vpp set by IRS = VDDA / VSSA / floating (`datasheets/ADC10065.md`).
-- **Input select (D30):** manual jumper — on-board generator or external signal on a dedicated header pin
-  (header layout + input protection: P2-3).
-- **No counter-pattern injection** (D16 superseded by D30): lost-sample detection method to decide (P2-5).
-- CH32 internal ADC + HSADC stimulus: to decide (P2-4).
-- ADC10065 → DVP (D[9:0], PCLK, sync) (D21). **UHSIF parked** — not routed on rev A. Notes for later:
-  UHSIF = 8–32 bit, ≤125 MHz from SYSCLK, master/slave handshake bus (CS#/WR#/RD#/OE# + RDNE/WRNF/AF#/AE#
-  flags), 4 lines × 8 buffers, fixed default pin maps; suited to FPGA/SoC partners, not a raw ADC.
-- Sample clock: Si5351 so the sample rate can be swept; same clock to CH32 TIM1 ETR for sample counting.
-- D20 (generator output on a 2-pin 2.54 mm header) — to be merged with the input-select header (P2-3).
+- **Clocks (D32):** Si5351A CLK0 → ADC10065 CLK; CLK1 (same PLL A, phase-tunable) → CH32 DVP PCLK (PF13) + TIM1_ETR (PE7)
+  for sample counting; CLK2 (PLL B) → generator. Outputs disabled by the RP before CH32 power-off (D29).
+- **Generator (D31, D33):** Si5351 CLK2 → 50 Ω → 5th-order LC low-pass, f<sub>c</sub> ≈ 30 MHz, doubly terminated → ≈ 2 Vpp sine
+  (⚠️ bench-verify amplitude). Clean sine ≈ 10–30 MHz; below f<sub>c</sub>/3 a shaped square (fine for throughput, D05).
+- **Input select (D34):** 1×4 2.54 mm header `GEN | ADC_IN | EXT | GND`; jumper 1–2 = generator, 2–3 = external.
+  EXT: 49.9 Ω termination, series R + clamp diodes. GEN + GND = scope probe point (replaces D20).
+- **ADC10065 (D30):** CH32-only, on the CH32 domain. ADC_IN → AC coupling + VCOM bias → VIN+, VIN− tied to VCOM,
+  IRS = VDDA (2.0 Vpp full scale) (`datasheets/ADC10065.md`). D0–D9 → DVP primary pins (PE0–PE6, PF14, PF4, PF3).
+- **CH32 ADC + HSADC (D35):** ADC_IN → series R + AC cap + VDD33A/2 bias → PC0 (ADC_IN10 + HSADC_IN0). No anti-alias
+  filter: 10–30 MHz sines alias at 5/20 MSPS (deterministic, fine for throughput).
+- **Counter pattern (D36):** the RP↔CH32 logic bus doubles as a DVP source on the **alternate DVP pins**
+  (DS V1.9 Table 2-2-23): RP GPIO12–19 → D0 PC6, D1 PC7, D2 PB13, D3 PF5, D4 PD12, D5 PD13, D6 PD14, D7 PD15 (AF13);
+  RP GPIO20 (PIO side-set) → PCLK PA6 (AF13). CH32 firmware selects ADC10065 or RP by pin AF — no switch.
+  D8/D9 have no free alternate (PC10/PC12 are SDMMC), so the counter is 8-bit, captured in 10-bit mode (16-bit words,
+  130 MB/s at 65 MS/s); host checks the low 8 bits. ⚠️ To verify in RM: only AF-selected pins feed the DVP.
+  Series R on these lines must stay small (≈ 33–47 Ω source termination) for ≥ 65 MHz edges.
+- **Sync (D37):** RP2350 drives HSYNC (PA4) and VSYNC (PA5) in both modes. DVP in JPEG mode: HSYNC may be static,
+  buffer switching by DMA length = COL_NUM (RM V1.8 §29.2.2, §29.3.1) → no PCLK alignment needed.
+  ⚠️ To verify on hardware: gapless continuous streaming.
+- **UHSIF parked** (D21) — not routed on rev A. Notes for later: 8–32 bit, ≤125 MHz from SYSCLK, master/slave handshake
+  bus, fixed default pin maps; suited to FPGA/SoC partners, not a raw ADC.
 
 ## 9. Board / manufacturing
 

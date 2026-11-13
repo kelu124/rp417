@@ -268,22 +268,22 @@ flowchart LR
 <tr><td>P1-6 <span class="tag d">D25</span></td><td>CH32 domain: separate 3V3 + 1V2 bucks + AVCC LDO, one EN from RP GPIO38 with default ON at power-up (standalone, D15), active discharge</td><td>Rail order; true 0 V when off</td></tr>
 <tr><td>P1-7 <span class="tag d">D26 D27 D28</span></td><td>HD3SS3220 for J1 orientation + CC (<b>dropped, D27</b>); TS3USB221A for PB8/PB9 (<b>D26</b>); LM66100 ORing ×4 (→ P2-8); INA3221 monitor (<b>dropped, D28</b>)</td><td>Reversible USB3 C plug needs an SS mux (same choice as the IvanLi-CN reference project)</td></tr>
 <tr><td>P1-8 <span class="tag w">→ P2-2</span></td><td>Analog chain: AD9851 → ~60 MHz LPF → THS4541 → ADC10065; OPA2356 for CH32 ADC conditioning + header buffer</td><td>ADC10065 needs a differential input; CH32 ADCs need a 0–3.3 V signal</td></tr>
-<tr><td>P1-9</td><td>RP2350 HSYNC/VSYNC drive DVP (alternative: P2-6)</td><td>ADC10065 has no sync outputs</td></tr>
-<tr><td>P1-10</td><td>CH32 QSPI as master, RP2350 PIO as slave</td><td>To verify in the RM that CH32 QSPI is master-only</td></tr>
+<tr><td>P1-9 <span class="tag d">D37</span></td><td>RP2350 HSYNC/VSYNC drive DVP (alternative: P2-6)</td><td>ADC10065 has no sync outputs</td></tr>
+<tr><td>P1-10 <span class="tag d">D38</span></td><td>CH32 QSPI as master, RP2350 PIO as slave</td><td>To verify in the RM that CH32 QSPI is master-only</td></tr>
 </tbody></table></div>
 <h3>P2 — after the simplification constraint D22 (2026-11-13)</h3>
 <div class="tbl"><table>
 <thead><tr><th>ID</th><th>Proposal</th><th>Why</th></tr></thead>
 <tbody>
-<tr><td>P2-1</td><td>Si5351A clock plan: CLK0 = ADC10065 clock and CLK1 = phase-tunable DVP PCLK (same PLL A, same frequency); CLK2 = test-signal source (PLL B)</td><td>Only clock chip left; three outputs exactly cover ADC clock, capture edge and generator (D31)</td></tr>
-<tr><td>P2-2</td><td>Generator: Si5351 CLK2 → 50 Ω series R → 5th-order LC low-pass, f<sub>c</sub> ≈ 30 MHz, doubly terminated 50 Ω → ≈ 2 V<sub>pp</sub> sine (to verify on the bench). Clean sine from ≈ 10 to 30 MHz; below f<sub>c</sub>/3 harmonics pass (shaped square, fine for throughput). ADC driven single-ended, VIN− = VCOM, IRS = VDDA (2 V<sub>pp</sub>)</td><td>Simplest path from a square clock to a clean sine: ~5 L/C + 2 R, no op-amp, no differential driver (D05, D22)</td></tr>
-<tr><td>P2-3</td><td>1×4 2.54 mm header GEN | ADC_IN | EXT | GND: jumper 1–2 = generator, 2–3 = external. AC-coupling cap + VCOM bias resistor after the jumper (ADC side). EXT: 49.9 Ω termination, series R + clamp diodes. GEN + GND double as the D20 probe point (supersedes D20)</td><td>Implements D30 with one header and a shunt; both sources AC-coupled and back-feed safe</td></tr>
-<tr><td>P2-4</td><td>CH32 ADC/HSADC stimulus: RP2350 PWM → 2nd-order RC → PC0 (ADC_IN10 + HSADC_IN0); sine synthesised in RP firmware (tens of kHz)</td><td>2 R + 2 C and one GPIO; replaces the DDS feed of D07 (R8)</td></tr>
-<tr><td>P2-5</td><td>Lost-sample detection without counter injection: TIM1_ETR counts PCLK vs samples received, and the host checks phase continuity of the known Si5351 sine</td><td>No parts; replaces D16 exact counter</td></tr>
-<tr><td>P2-6</td><td>DVP HSYNC/VSYNC from a CH32 timer clocked by PCLK on ETR, looped by trace to PA4/PA5 (to verify DVP accepts it)</td><td>No RP pins, line length exact to the sample, works standalone (D15)</td></tr>
-<tr><td>P2-7</td><td>VDD33A/VREFP from the CH32 3V3 via ferrite + caps (no LDO)</td><td>D22; HSADC needs VDD33A ≥ 3.0 V only</td></tr>
+<tr><td>P2-1 <span class="tag d">D32</span></td><td>Si5351A clock plan: CLK0 = ADC10065 clock and CLK1 = phase-tunable DVP PCLK (same PLL A, same frequency); CLK2 = test-signal source (PLL B)</td><td>Only clock chip left; three outputs exactly cover ADC clock, capture edge and generator (D31)</td></tr>
+<tr><td>P2-2 <span class="tag d">D33</span></td><td>Generator: Si5351 CLK2 → 50 Ω series R → 5th-order LC low-pass, f<sub>c</sub> ≈ 30 MHz, doubly terminated 50 Ω → ≈ 2 V<sub>pp</sub> sine (to verify on the bench). Clean sine from ≈ 10 to 30 MHz; below f<sub>c</sub>/3 harmonics pass (shaped square, fine for throughput). ADC driven single-ended, VIN− = VCOM, IRS = VDDA (2 V<sub>pp</sub>)</td><td>Simplest path from a square clock to a clean sine: ~5 L/C + 2 R, no op-amp, no differential driver (D05, D22)</td></tr>
+<tr><td>P2-3 <span class="tag d">D34</span></td><td>1×4 2.54 mm header GEN | ADC_IN | EXT | GND: jumper 1–2 = generator, 2–3 = external. AC-coupling cap + VCOM bias resistor after the jumper (ADC side). EXT: 49.9 Ω termination, series R + clamp diodes. GEN + GND double as the D20 probe point (supersedes D20)</td><td>Implements D30 with one header and a shunt; both sources AC-coupled and back-feed safe</td></tr>
+<tr><td>P2-4 <span class="tag w">→ D35</span></td><td>CH32 ADC/HSADC stimulus: RP2350 PWM → 2nd-order RC → PC0 (ADC_IN10 + HSADC_IN0); sine synthesised in RP firmware (tens of kHz)</td><td>2 R + 2 C and one GPIO; replaces the DDS feed of D07 (R8)</td></tr>
+<tr><td>P2-5 <span class="tag w">→ D36</span></td><td>Lost-sample detection without counter injection: TIM1_ETR counts PCLK vs samples received, and the host checks phase continuity of the known Si5351 sine</td><td>No parts; replaces D16 exact counter</td></tr>
+<tr><td>P2-6 <span class="tag w">→ D37</span></td><td>DVP HSYNC/VSYNC from a CH32 timer clocked by PCLK on ETR, looped by trace to PA4/PA5 (to verify DVP accepts it)</td><td>No RP pins, line length exact to the sample, works standalone (D15)</td></tr>
+<tr><td>P2-7 <span class="tag d">D39</span></td><td>VDD33A/VREFP from the CH32 3V3 via ferrite + caps (no LDO)</td><td>D22; HSADC needs VDD33A ≥ 3.0 V only</td></tr>
 <tr><td>P2-8</td><td>Power inputs: drop the external 5 V input → 3 × LM66100 (J1, J2, J3 VBUS)</td><td>One input and one ideal diode less</td></tr>
-<tr><td>P2-9</td><td>Keep J2 (CH32 USBFS USB-C) or drop it (UART ISP via RP2350 covers ISP)</td><td>Dropping saves a connector + an LM66100; loses USBFS tests</td></tr>
+<tr><td>P2-9 <span class="tag d">D40</span></td><td>Keep J2 (CH32 USBFS USB-C) or drop it (UART ISP via RP2350 covers ISP)</td><td>Dropping saves a connector + an LM66100; loses USBFS tests</td></tr>
 </tbody></table></div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
