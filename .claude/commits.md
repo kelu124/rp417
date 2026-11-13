@@ -14,4 +14,5 @@
 | 2026-11-12 | f9fafca | SessionStart hook listing unanswered decision points (TODO open questions + untagged P-proposals) |
 | 2026-11-13 | cf87f8d | D22: simplicity / minimal-BOM design constraint (SPEC §0) |
 | 2026-11-13 | 1d5a528 | D23–D31 (P1 review under D22: simplified power, single-orientation USB3, no INA/bus switches/2:1 switch/AD9851, ADC10065 jumper input); P2-1..P2-9 proposals; hook accepts `tag w` (withdrawn) |
-| 2026-11-13 | (this commit) | D32–D40: Si5351 plan, LC generator, input-select header, CH32 ADC feed, counter pattern on DVP alternate pins via logic bus, RP sync in JPEG mode, QSPI, AVCC ferrite, keep J2 |
+| 2026-11-13 | d27523d | D32–D40: Si5351 plan, LC generator, input-select header, CH32 ADC feed, counter pattern on DVP alternate pins via logic bus, RP sync in JPEG mode, QSPI, AVCC ferrite, keep J2 |
+| 2026-11-13 | (this commit) | D41: no external 5 V input, 3 × LM66100 |

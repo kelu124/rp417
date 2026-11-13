@@ -282,7 +282,7 @@ flowchart LR
 <tr><td>P2-5 <span class="tag w">→ D36</span></td><td>Lost-sample detection without counter injection: TIM1_ETR counts PCLK vs samples received, and the host checks phase continuity of the known Si5351 sine</td><td>No parts; replaces D16 exact counter</td></tr>
 <tr><td>P2-6 <span class="tag w">→ D37</span></td><td>DVP HSYNC/VSYNC from a CH32 timer clocked by PCLK on ETR, looped by trace to PA4/PA5 (to verify DVP accepts it)</td><td>No RP pins, line length exact to the sample, works standalone (D15)</td></tr>
 <tr><td>P2-7 <span class="tag d">D39</span></td><td>VDD33A/VREFP from the CH32 3V3 via ferrite + caps (no LDO)</td><td>D22; HSADC needs VDD33A ≥ 3.0 V only</td></tr>
-<tr><td>P2-8</td><td>Power inputs: drop the external 5 V input → 3 × LM66100 (J1, J2, J3 VBUS)</td><td>One input and one ideal diode less</td></tr>
+<tr><td>P2-8 <span class="tag d">D41</span></td><td>Power inputs: drop the external 5 V input → 3 × LM66100 (J1, J2, J3 VBUS)</td><td>One input and one ideal diode less</td></tr>
 <tr><td>P2-9 <span class="tag d">D40</span></td><td>Keep J2 (CH32 USBFS USB-C) or drop it (UART ISP via RP2350 covers ISP)</td><td>Dropping saves a connector + an LM66100; loses USBFS tests</td></tr>
 </tbody></table></div>
 </main>

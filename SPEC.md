@@ -135,7 +135,7 @@ no H41x device file yet; WCHISPTool does support it).
 
 The RP2350 is **permanently on board**; "without the RP2350" means *no host connected to the RP2350's USB*.
 Decided 2026-11-12:
-- Board power: VBUS of J1 (CH32 USB3), J2 (CH32 USBFS), J3 (RP2350) and an optional external input,
+- Board power: VBUS of J1 (CH32 USB3), J2 (CH32 USBFS) and J3 (RP2350) only (no external input, D41),
   ORed through ideal diodes → any one cable powers the whole board. RP2350 always powered.
 - RP2350 firmware boots into a safe standalone default: CH32 powered, NRST released, USB switch → USB
   connector, DDS off.

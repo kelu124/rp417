@@ -1,7 +1,6 @@
 # TODO
 
 ## Open questions (user)
-- [ ] P2-8: drop the external 5 V input (3 × LM66100 instead of 4)?
 
 ## Datasheets
 - [ ] Get QingKe V5/V3 processor manuals (debug module details for RP-side SDI)
