@@ -15,4 +15,5 @@
 | 2026-11-13 | cf87f8d | D22: simplicity / minimal-BOM design constraint (SPEC §0) |
 | 2026-11-13 | 1d5a528 | D23–D31 (P1 review under D22: simplified power, single-orientation USB3, no INA/bus switches/2:1 switch/AD9851, ADC10065 jumper input); P2-1..P2-9 proposals; hook accepts `tag w` (withdrawn) |
 | 2026-11-13 | d27523d | D32–D40: Si5351 plan, LC generator, input-select header, CH32 ADC feed, counter pattern on DVP alternate pins via logic bus, RP sync in JPEG mode, QSPI, AVCC ferrite, keep J2 |
-| 2026-11-13 | (this commit) | D41: no external 5 V input, 3 × LM66100 |
+| 2026-11-13 | 1e793a6 | D41: no external 5 V input, 3 × LM66100 |
+| 2026-11-13 | (this commit) | Design page rev A redraw, BOM with JLC stock, area budget, RM checks, D42 ADC10065 DNP, P3-1..P3-6 |

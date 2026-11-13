@@ -3,8 +3,8 @@
 Status: **draft / requirements gathering** (last update 2026-11-13)
 
 All decisions are logged in `DECISIONS.md` (Dxx IDs).
-Block diagrams (mermaid) and pin plans: `docs/design/block-diagram.html` (proposal P1, partly decided D21–D31;
-diagrams still show the pre-D22 parts — revision pending, open points listed as P2 there).
+Block diagrams (mermaid), pin plans, BOM and area budget: `docs/design/block-diagram.html` (rev A, redrawn 2026-11-13
+for D22–D42; open points listed there as P3).
 
 ## 0. Guiding constraint (D22)
 
@@ -28,7 +28,7 @@ The board must also work **without the RP2350** (CH32 standalone).
 | R1 | RP2350 controls CH32 power and reset | agreed |
 | R2 | RP2350 programs the CH32 | **decided: minichlink + RP2350 "funprog" programmer** — see §4 |
 | R3 | CH32 USB3 (SuperSpeed) connector + a USB2 connection | agreed — see §5 (shared-USB-C idea dropped) |
-| R4 | RP2350 ↔ CH32 links: UART, I2C, QSPI, plus GPIO "logic" lines | agreed |
+| R4 | RP2350 ↔ CH32 links: UART, I2C, QSPI, plus GPIO "logic" lines | agreed — QSPI: CH32 is master-only (RM V1.8 ch. 37: flash interface, no slave mode) → RP PIO slave (D38) ✅ |
 | R5 | CH32 SD card via SDIO/SDMMC | agreed |
 | R6 | ADC10065 (10-bit, 65 MSPS) parallel output into the CH32 | agreed — purpose: **data throughput** tests; CH32-only, jumper-selected input (D30) |
 | R7 | Signal generator piloted by the RP2350, feeding the ADC10065 | **changed (D31): AD9851 dropped, Si5351 filtered output** |
@@ -127,7 +127,9 @@ no H41x device file yet; WCHISPTool does support it).
 - 3V3 → **CH32-domain load switch** (RP GPIO EN, default ON for standalone D15, quick output discharge) → CH32 VDD33/VDDIO
   (VIO18 tied to VDDIO, D23), microSD, ADC10065 (VDDA 2.7–3.6 V, `datasheets/ADC10065.md`).
 - **No external 1V2**: CH32 internal LDO supplies VDDK/VDD12A from VDD33 (`CH32H417DS0_V1.9_en.md` §1.4.3; external
-  supply optional, only to reduce heat). ⚠️ To verify: CH32 dissipation at full USB3 load.
+  supply optional, only to reduce heat). Estimate (DS V1.9 Tables 3-6-4/3-6-5): I<sub>DDK</sub> ≈ 112 mA (400/100 MHz, all
+  peripherals) + I<sub>DD12A</sub> ≈ 85 mA (USB3) → ≈ 0.4 W in the LDO, ≈ 0.75 W for the chip. No θ<sub>JA</sub> given; at a typical
+  25–35 °C/W for QFN128 + stitched pad → +20–25 °C, inside T<sub>J</sub> ≤ 105 °C. ⚠️ Estimate — measure on hardware.
 - VDD33A/VREFP: CH32 3V3 via ferrite + caps, no LDO (D39).
 - Rail order to respect: VDD33 ≥ VDD33A ≥ VDDIO ≥ VIO18 (DS V1.9 Table 3-2) — satisfied by a single 3V3 rail.
 
@@ -147,10 +149,10 @@ Decided 2026-11-12:
 - **Clocks (D32):** Si5351A CLK0 → ADC10065 CLK; CLK1 (same PLL A, phase-tunable) → CH32 DVP PCLK (PF13) + TIM1_ETR (PE7)
   for sample counting; CLK2 (PLL B) → generator. Outputs disabled by the RP before CH32 power-off (D29).
 - **Generator (D31, D33):** Si5351 CLK2 → 50 Ω → 5th-order LC low-pass, f<sub>c</sub> ≈ 30 MHz, doubly terminated → ≈ 2 Vpp sine
-  (⚠️ bench-verify amplitude). Clean sine ≈ 10–30 MHz; below f<sub>c</sub>/3 a shaped square (fine for throughput, D05).
+  (ideal ≈ (4/π)·(3.3/2)·½ ≈ 2 Vpp; Si5351 driver impedance lowers it — estimate 1.5–2 Vpp, ⚠️ bench-verify). Clean sine ≈ 10–30 MHz; below f<sub>c</sub>/3 a shaped square (fine for throughput, D05).
 - **Input select (D34):** 1×4 2.54 mm header `GEN | ADC_IN | EXT | GND`; jumper 1–2 = generator, 2–3 = external.
   EXT: 49.9 Ω termination, series R + clamp diodes. GEN + GND = scope probe point (replaces D20).
-- **ADC10065 (D30):** CH32-only, on the CH32 domain. ADC_IN → AC coupling + VCOM bias → VIN+, VIN− tied to VCOM,
+- **ADC10065 (D30, D42):** **DNP** — user hand-solders their own part. CH32-only, on the CH32 domain. ADC_IN → AC coupling + VCOM bias → VIN+, VIN− tied to VCOM,
   IRS = VDDA (2.0 Vpp full scale) (`datasheets/ADC10065.md`). D0–D9 → DVP primary pins (PE0–PE6, PF14, PF4, PF3).
 - **CH32 ADC + HSADC (D35):** ADC_IN → series R + AC cap + VDD33A/2 bias → PC0 (ADC_IN10 + HSADC_IN0). No anti-alias
   filter: 10–30 MHz sines alias at 5/20 MSPS (deterministic, fine for throughput).
@@ -158,7 +160,9 @@ Decided 2026-11-12:
   (DS V1.9 Table 2-2-23): RP GPIO12–19 → D0 PC6, D1 PC7, D2 PB13, D3 PF5, D4 PD12, D5 PD13, D6 PD14, D7 PD15 (AF13);
   RP GPIO20 (PIO side-set) → PCLK PA6 (AF13). CH32 firmware selects ADC10065 or RP by pin AF — no switch.
   D8/D9 have no free alternate (PC10/PC12 are SDMMC), so the counter is 8-bit, captured in 10-bit mode (16-bit words,
-  130 MB/s at 65 MS/s); host checks the low 8 bits. ⚠️ To verify in RM: only AF-selected pins feed the DVP.
+  130 MB/s at 65 MS/s); host checks the low 8 bits. RM V1.8 §9.2: each pin has its own AF0–AF15 mux and a pin in
+  input mode is not connected to any alternate-function input → only the AF-configured set feeds the DVP. ✅ (RM; still
+  confirm on hardware that two sets are never both enabled by firmware).
   Series R on these lines must stay small (≈ 33–47 Ω source termination) for ≥ 65 MHz edges.
 - **Sync (D37):** RP2350 drives HSYNC (PA4) and VSYNC (PA5) in both modes. DVP in JPEG mode: HSYNC may be static,
   buffer switching by DMA length = COL_NUM (RM V1.8 §29.2.2, §29.3.1) → no PCLK alignment needed.
@@ -169,11 +173,13 @@ Decided 2026-11-12:
 ## 9. Board / manufacturing
 
 - KiCad, JLCPCB fab + assembly, 6 layers (D18).
-- Outline target 63.5 × 88.9 mm, playing-card size (D19), to be confirmed by an area budget.
-  First estimate: 4 × USB-C on the two short edges, microSD at a corner, CH32 QFN128 centred
-  next to J1 (short SS pairs), RP2350 + flash on the other half, analog chain (AD9851,
-  filter, driver, ADC10065) along one long edge, away from the USB3 lines; small parts on the
-  back. Likely feasible only with 0402 passives and QFN/TSSOP logic.
+- Outline 63.5 × 88.9 mm (D19). **Area budget (2026-11-13): ≈ 1900 mm² of parts+keep-outs ≈ 34 % of one side** → fits;
+  single-sided assembly proposed (P3-2). Details + placement sketch: `docs/design/block-diagram.html` §9.
+- CH32H417 QFN128 is 12.3 × 12.3 mm, **0.35 mm pitch** (DS V1.9 §4.1) → fan-out needs ≤ 0.09 mm trace/space; check JLC
+  capability and stencil before layout.
+- **Sourcing snapshot 2026-11-13** (JLC parts API, §8 of the design page): **CH32H417QEU6 = 0 stock at JLC** (C49363240) →
+  P3-3. Thin stock: RP2354B (524), RP2350 SMPS inductor AOTA-B201610S3R3 (143). ADC10065 is DNP (D42; LCSC has 4 + 30).
+  Almost every IC/connector is an Extended part.
 
 ## 10. Open questions
 

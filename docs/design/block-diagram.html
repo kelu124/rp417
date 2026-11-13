@@ -38,68 +38,55 @@ ul{margin:6px 0 6px 20px;padding:0}
 <body>
 <main>
 <h1>rp417 — block diagram &amp; pin plan</h1>
-<p class="sub">CH32H417QEU6 test board supervised by an RP2350 · proposal P1 · 2026-11-12 · source of truth: <code>SPEC.md</code>, <code>DECISIONS.md</code></p>
+<p class="sub">CH32H417QEU6 test board supervised by an RP2350 · proposals P1–P3 · updated 2026-11-13 · source of truth: <code>SPEC.md</code>, <code>DECISIONS.md</code></p>
 <p><span class="tag d">decided</span> = logged in DECISIONS.md &nbsp; <span class="tag p">proposed</span> = new in this document, awaiting approval &nbsp; <span class="tag w">withdrawn</span> = replaced by a later proposal</p>
-<p><b>⚠ 2026-11-13 (D22–D31):</b> sections 1–6 still show the pre-simplification parts (AD9851, THS4541, HD3SS3220, INA3221, bus switches, 2:1 capture switch, 1V2 buck). They are superseded by D23–D31 and the P2 proposals in §7; a redraw is pending.</p>
+<p><b>Rev A, redrawn 2026-11-13</b> for D22–D41 (minimal BOM). Parts list and area budget: §8–§9.</p>
 <nav>
-<a href="#system">System</a><a href="#power">Power</a><a href="#capture">Capture path</a><a href="#ch32">CH32 pins</a><a href="#rp">RP2350 pins</a><a href="#link">RP ↔ CH32</a><a href="#props">New proposals</a>
+<a href="#system">System</a><a href="#power">Power</a><a href="#capture">Capture path</a><a href="#analog">Analog</a><a href="#ch32">CH32 pins</a><a href="#rp">RP2350 pins</a><a href="#link">RP ↔ CH32</a><a href="#props">Proposals</a><a href="#bom">BOM</a><a href="#area">Area</a>
 </nav>
 
 <h2 id="system">1. System block diagram</h2>
-<p class="sub">Wide diagram: scroll sideways inside the frame.</p>
+<p class="sub">Rev A after the minimal-BOM constraint (D22–D41). Wide diagram: scroll sideways inside the frame.</p>
 <div class="card"><pre class="mermaid wide">
 flowchart TB
   HOST(["Host PC - test scripts"])
-  HOST --- J3["J3 USB-C<br/>RP2350"]
-  HOST --- J1["J1 USB-C<br/>CH32 USB3"]
-  HOST --- J2["J2 USB-C<br/>CH32 USBFS / ISP"]
+  HOST --- J3["J3 USB-C 2.0<br/>RP2350"]
+  HOST --- J1["J1 USB-C 3.x<br/>CH32 USB3, single orientation"]
+  HOST --- J2["J2 USB-C 2.0<br/>CH32 USBFS / ISP"]
 
-  subgraph SUP["Supervisor domain - always on"]
+  subgraph SUP["Always-on 3V3 domain"]
     direction TB
-    RP["RP2354B<br/>RP2350 + 2 MB flash, 48 GPIO"]
-    MG["I2C0 mgmt bus:<br/>Si5351A clocks, INA3221 power monitor"]
-    GEN["AD9851 DDS 5 V 180 MHz<br/>via 74AHCT125 level shift"]
-    FLT["LPF ~60 MHz"]
-    AMP["OPA2356<br/>buffer + offset"]
-    HDR["2-pin header<br/>signal + GND"]
-    RP --- MG
-    RP -- "DDS control" --> GEN
-    MG -- "CLK2 30 MHz ref" --> GEN
-    GEN --> FLT --> AMP --> HDR
+    RP["RP2354B<br/>RP2350B + 2 MB flash"]
+    SI["Si5351A<br/>CLK0 ADC clock, CLK1 PCLK, CLK2 generator"]
+    LPF["LC low-pass 5th order<br/>fc ~30 MHz"]
+    HDR["1x4 header + jumper<br/>GEN / ADC_IN / EXT / GND"]
+    RP -- "I2C0" --- SI
+    SI -- "CLK2" --> LPF --> HDR
   end
 
   J3 --- RP
-  J1 -- "SS pairs" --- HD3["HD3SS3220<br/>CC + SS mux"]
+  J1 -- "SS pairs direct, CC = 5.1k Rd" --- CH
   J1 -- "D+ / D-" --- USW["TS3USB221A<br/>USB2 switch"]
   USW -- "SWIO / SWCLK" --- RP
-  MG --- HD3
 
-  ISO["Isolation FET switches x3<br/>UART, I2C, QSPI, GPIO x8, sync, marker, MCO"]
-  CSW["Capture 2:1 bus switch<br/>D0-D9 + PCLK"]
-  RP --- ISO
-  RP -- "counter pattern D0-D9 + PCLK" --> CSW
-  MG -- "CLK1 capture clock" --> CSW
-
-  subgraph TGT["CH32 domain - power switched by RP2350"]
+  subgraph TGT["CH32 domain - load switch, RP-controlled, default ON"]
     direction TB
-    CH["CH32H417QEU6<br/>QFN128"]
-    FDA["THS4541<br/>diff. driver"]
-    ADC["ADC10065<br/>10-bit 65 MSPS"]
+    CH["CH32H417QEU6<br/>QFN128, internal 1V2 LDO"]
+    ADC["ADC10065 - DNP<br/>user-fitted, 10-bit 65 MSPS"]
     SD["microSD"]
-    FDA --> ADC
     CH --- SD
   end
 
-  FLT --> FDA
-  MG -- "CLK0 sample clock" --> ADC
-  ADC -- "D0-D9" --> CSW
-  CSW -- "DVP D0-D9, PCLK, TIM1_ETR" --> CH
-  AMP -- "PC0 ADC + HSADC" --> CH
-  ISO --- CH
-  HD3 --- CH
+  HDR -- "ADC_IN single-ended, AC + VCOM bias" --> ADC
+  HDR -- "ADC_IN, AC + mid-rail bias" --> CH
+  SI -- "CLK0" --> ADC
+  SI -- "CLK1 -> PF13 PCLK + PE7 ETR" --> CH
+  ADC -- "D0-D9 -> DVP primary pins" --> CH
+  RP -- "logic bus 8 + clock = counter pattern<br/>-> DVP alternate pins" --> CH
+  RP -- "UART, I2C, QSPI, HSYNC/VSYNC, marker, MCO<br/>series R, firmware tri-state" --- CH
   USW -- "PB8 / PB9 USBHS" --- CH
   J2 -- "PA11 / PA12" --- CH
-  RP -- "NRST, PWR_EN" --> CH
+  RP -- "NRST open-drain, PWR_EN" --> CH
 </pre></div>
 
 <h2 id="power">2. Power tree</h2>
@@ -108,100 +95,121 @@ flowchart LR
   V1["J1 VBUS"] --> D1["LM66100"]
   V2["J2 VBUS"] --> D2["LM66100"]
   V3["J3 VBUS"] --> D3["LM66100"]
-  V4["EXT 5 V header"] --> D4["LM66100"]
-  D1 & D2 & D3 & D4 --> VSYS(["VSYS 5 V"])
-  VSYS --> B0["Buck 3V3_SUP<br/>always on"]
-  B0 --> RPP["RP2354B, Si5351A, INA3221,<br/>HD3SS3220, switches, OPA2356"]
-  VSYS --> A5["5V_ANA<br/>ferrite + LC"] --> DDSP["AD9851"]
-  VSYS --> EN{{"CH32 domain enable<br/>RP GPIO38 PWR_EN"}}
-  EN --> B1["Buck 3V3_CH32<br/>VDD33, VDDIO = VIO18"]
-  EN --> B2["Buck 1V2<br/>VDDK + VDD12A"]
-  B1 --> L1["LDO TPS7A20 3V3<br/>AVCC: VDD33A, VREFP"]
-  B1 --> L2["LDO 3V0<br/>ADC10065 VA, THS4541"]
-  B1 --> SDP["microSD"]
-  INA -. "senses" .- B1
-  INA -. "senses" .- B2
-  INA -. "senses" .- L1
-  INA["INA3221"]
+  D1 & D2 & D3 --> VSYS(["VSYS 5 V"])
+  VSYS --> B0["Buck 5 V to 3V3, 2 A<br/>always on"]
+  B0 --> SUPL["RP2354B, Si5351A,<br/>TS3USB221A"]
+  B0 --> LS{{"Load switch, quick discharge<br/>EN = RP GPIO38, pull-up = default ON"}}
+  LS --> C33(["3V3_CH32"])
+  C33 --> CHP["CH32 VDD33, VDDIO = VIO18<br/>internal LDO: VDDK, VDD12A"]
+  C33 --> FB["ferrite + caps"] --> AV["VDD33A, VREFP<br/>ADC10065 VA"]
+  C33 --> SDP["microSD, ADC10065 VDR"]
+  RPA["RP ADC GPIO40/41"] -. "senses" .- C33
+  RPA -. "senses" .- VSYS
 </pre></div>
-<div class="note"><b>CH32 rail order (datasheet V1.9 §1.4.3, Table 3-2):</b> VDD33 ≥ VDD33A ≥ VDDIO ≥ VIO18, VDD33A ≥ VREFP, and with HSADC VDDIO ≥ VREFP. VDDK/VDD12A 1.17–1.27 V. A shared enable plus active output discharge on all CH32-domain regulators so the domain really returns to 0 V when off (verified by the RP2350 ADC, D08).</div>
+<div class="note"><b>Rail order (DS V1.9 §1.4.3, Table 3-2):</b> VDD33 ≥ VDD33A ≥ VDDIO ≥ VIO18 — met by one 3V3 rail (D23, D25). <b>Internal LDO load</b> (DS V1.9 Tables 3-6-4/3-6-5): I<sub>DDK</sub> ≈ 112 mA at 400/100 MHz all peripherals + I<sub>DD12A</sub> ≈ 85 mA with USB3 → ≈ 0.2 A × (3.3 − 1.2) V ≈ <b>0.4 W in the LDO</b>, ≈ 0.75 W for the whole chip. No θ<sub>JA</sub> in the datasheet; with a typical 25–35 °C/W for a QFN128 with its pad stitched into 6 layers → +20–25 °C, well inside T<sub>J</sub> ≤ 105 °C (estimate, to measure).</div>
 
 <h2 id="capture">3. Capture path detail</h2>
 <div class="card"><pre class="mermaid">
 flowchart LR
   SI0["Si5351 CLK0"] --> ADCCLK["ADC10065 CLK"]
-  SI1["Si5351 CLK1<br/>same freq, phase-tunable"] --> MA["switch input A: PCLK"]
-  ADCD["ADC10065 D0-D9"] --> MA2["switch input A: D0-D9"]
-  RPP["RP2350 PIO side-set PCLK"] --> MB["switch input B: PCLK"]
-  RPD["RP2350 PIO counter D0-D9"] --> MB2["switch input B: D0-D9"]
-  SEL["RP GPIO43 CAP_SEL"] --> SW
-  MA & MA2 & MB & MB2 --> SW["2:1 bus switch<br/>11 lines, Ioff"]
-  SW -- "D0-D9" --> DVP["CH32 DVP D0-D9"]
-  SW -- "PCLK" --> PCLK["CH32 PF13 DVP_PCLK"]
-  SW -- "PCLK copy" --> ETR["CH32 PE7 TIM1_ETR<br/>sample counter"]
-  RPS["RP2350 HSYNC / VSYNC<br/>driven in both modes"] --> SYNC["CH32 PA4 HSYNC, PA5 VSYNC"]
+  ADCD["ADC10065 D0-D9 (DNP)"] --> PRI["DVP primary pins<br/>PE0-PE6, PF14, PF4, PF3"]
+  SI1["Si5351 CLK1<br/>same PLL, phase-tunable"] --> PCLK["PF13 DVP_PCLK (primary)"]
+  SI1 --> ETR["PE7 TIM1_ETR<br/>sample counter"]
+  RPD["RP2350 PIO counter<br/>GPIO12-19"] --> ALT["DVP alternate pins D0-D7<br/>PC6 PC7 PB13 PF5 PD12-PD15"]
+  RPC["RP2350 GPIO20 side-set"] --> PCLK2["PA6 DVP_PCLK (alternate)"]
+  PRI & ALT & PCLK & PCLK2 --> MUX{{"CH32 GPIO AF mux<br/>firmware picks one pin set"}}
+  MUX --> DVP["DVP, JPEG mode<br/>DMA length = COL_NUM"]
+  RPS["RP2350 GPIO31/32"] --> SYNC["PA4 HSYNC static, PA5 VSYNC frame"]
+  SYNC --> DVP
 </pre></div>
 <ul>
-<li>ADC10065 has no clock output and no output enable (only STBY) — hence a separate phase-tunable Si5351 output for the CH32 capture edge, and the 2:1 switch for counter-pattern injection (D16).</li>
-<li>RP2350 PIO: one sample per two instructions → ~75 MS/s at 150 MHz system clock, higher if overclocked. Target ≥ 65 MS/s.</li>
-<li>DVP stores 10-bit samples as 16-bit words: 65 MS/s ⇒ 130 MB/s into SRAM, streamed out over USB3.</li>
-<li>UHSIF is <b>not routed</b> in P1 (its pins overlap SDMMC/ADC). Possible later revision.</li>
+<li>No switch chip (D36): each CH32 pin has its own AF0–AF15 mux, and a pin left in plain input mode is <i>not</i> connected to any alternate-function input (RM V1.8 §9.2). Firmware sets AF13/AF11 only on the active set.</li>
+<li>Counter is 8-bit (D8/D9 have no free alternate — PC10/PC12 are SDMMC); capture runs in 10-bit mode, so 16-bit words and the same 130 MB/s at 65 MS/s. Host checks the low 8 bits.</li>
+<li>DVP in JPEG mode: HSYNC may be held static, buffer switching follows the DMA length (RM V1.8 §29.2.2, §29.3.1) → RP sync needs no alignment to PCLK (D37). Gapless streaming still to prove on hardware.</li>
+<li>RP2350 PIO: one sample per two instructions → ~75 MS/s at 150 MHz system clock, more if overclocked. Series R on these lines ≈ 33–47 Ω (source termination).</li>
+<li>ADC10065 fitted by hand (DNP, D42). With it absent the primary pins float harmlessly (configured as inputs).</li>
+<li>UHSIF not routed (D21).</li>
+</ul>
+
+<h2 id="analog">3b. Analog front-end</h2>
+<div class="card"><pre class="mermaid">
+flowchart LR
+  CLK2["Si5351 CLK2<br/>3.3 V square"] --> RS["50 ohm series"] --> LC["5th-order LC LPF<br/>fc ~30 MHz, 50 ohm"] --> RT["50 ohm termination"]
+  RT --> P1(["hdr 1 GEN"])
+  EXT(["hdr 3 EXT"]) --> PROT["49.9 ohm term,<br/>series R + clamp diodes"]
+  P1 -. "jumper 1-2" .- P2(["hdr 2 ADC_IN"])
+  PROT -. "jumper 2-3" .- P2
+  P2 --> AC1["AC cap + R to VCOM"] --> ADC["ADC10065 VIN+<br/>VIN- = VCOM, IRS"]
+  P2 --> AC2["series R + AC cap +<br/>VDD33A/2 divider"] --> PC0["CH32 PC0<br/>ADC_IN10 + HSADC_IN0"]
+</pre></div>
+<ul>
+<li>Doubly-terminated filter: fundamental ≈ (4/π)·(3.3/2)·½ ≈ 1 V peak ⇒ ≈ 2 V<sub>pp</sub> ideal; the Si5351 driver impedance lowers it (estimate 1.5–2 V<sub>pp</sub>, bench-verify). Clean sine from ≈ 10 to 30 MHz; below f<sub>c</sub>/3 a shaped square.</li>
+<li>ADC10065 single-ended full scale = 2.0 / 1.5 / 1.0 V<sub>pp</sub> for IRS = VDDA / VSSA / floating (<code>ADC10065.md</code>) — see P3-1.</li>
+<li>CH32 ADCs get the same net with no anti-alias filter: 10–30 MHz aliases at 5/20 MSPS (deterministic, fine for throughput, D35).</li>
 </ul>
 
 <h2 id="ch32">4. CH32H417QEU6 pin plan</h2>
-<p class="sub">Pins and AF numbers from <code>datasheets/CH32H417DS0_V1.9_en.pdf</code> (Table 2-1-1 and AF summary). Domain: <b>D33</b> = VDD33, <b>DIO</b> = VDDIO, <b>V18</b> = VIO18 (tied to VDDIO = 3.3 V, proposal P1-1).</p>
+<p class="sub">Pins and AF numbers from <code>datasheets/CH32H417DS0_V1.9_en.pdf</code> (Table 2-1-1, Table 2-2-23 DVP). All I/O at 3.3 V (VIO18 tied to VDDIO, D23).</p>
 <div class="tbl"><table>
-<thead><tr><th>Function</th><th>Signal</th><th>CH32 pin (QFN128 #)</th><th>AF</th><th>Dom.</th><th>Goes to</th></tr></thead>
+<thead><tr><th>Function</th><th>Signal</th><th>CH32 pin (QFN128 #)</th><th>AF</th><th>Goes to</th></tr></thead>
 <tbody>
-<tr><td rowspan="3">USB3 (J1)</td><td>SSTX A/B, SSRX A/B</td><td>dedicated USB3 pins (123–128)</td><td>—</td><td>—</td><td>HD3SS3220 → J1</td></tr>
-<tr><td>USBHS DP / SWCLK</td><td>PB8 (120)</td><td>—</td><td>V18</td><td>TS3USB221A → J1 D+ or RP SWCLK</td></tr>
-<tr><td>USBHS DM / SWIO</td><td>PB9 (121)</td><td>—</td><td>V18</td><td>TS3USB221A → J1 D− or RP SWIO</td></tr>
-<tr><td rowspan="2">USBFS (J2)</td><td>USBFS DM</td><td>PA11 (90)</td><td>—</td><td>D33</td><td>J2 D− (USB ISP entry: DM low)</td></tr>
-<tr><td>USBFS DP</td><td>PA12 (91)</td><td>—</td><td>D33</td><td>J2 D+ (USB ISP entry: DP high at power-on)</td></tr>
-<tr><td rowspan="2">Clock / reset</td><td>HSE 25 MHz crystal</td><td>XI (23) / XO (24)</td><td>—</td><td>—</td><td>crystal; no XO pull-down needed (VIO18 tied)</td></tr>
-<tr><td>NRST</td><td>NRST (25)</td><td>—</td><td>—</td><td>RP GPIO37 open-drain + reset button</td></tr>
-<tr><td rowspan="14">Capture (DVP)</td><td>DVP_D0</td><td>PE0 (111)</td><td>AF11</td><td>V18</td><td rowspan="11">capture 2:1 switch (ADC10065 / RP counter)</td></tr>
-<tr><td>DVP_D1</td><td>PE1 (112)</td><td>AF11</td><td>V18</td></tr>
-<tr><td>DVP_D2</td><td>PE2 (1)</td><td>AF13</td><td>DIO</td></tr>
-<tr><td>DVP_D3</td><td>PE3 (2)</td><td>AF13</td><td>D33</td></tr>
-<tr><td>DVP_D4</td><td>PE4 (3)</td><td>AF13</td><td>D33</td></tr>
-<tr><td>DVP_D5</td><td>PF14 (113)</td><td>AF11</td><td>V18</td></tr>
-<tr><td>DVP_D6</td><td>PE5 (4)</td><td>AF13</td><td>D33</td></tr>
-<tr><td>DVP_D7</td><td>PE6 (5)</td><td>AF13</td><td>D33</td></tr>
-<tr><td>DVP_D8</td><td>PF4 (109)</td><td>AF11</td><td>V18</td></tr>
-<tr><td>DVP_D9</td><td>PF3 (108)</td><td>AF11</td><td>V18</td></tr>
-<tr><td>DVP_PCLK</td><td>PF13 (50)</td><td>AF11</td><td>V18</td></tr>
-<tr><td>TIM1_ETR (sample counter)</td><td>PE7 (52)</td><td>AF1</td><td>V18</td><td>switched PCLK copy</td></tr>
-<tr><td>DVP_HSYNC</td><td>PA4 (39)</td><td>AF13</td><td>DIO</td><td rowspan="2">RP GPIO31 / GPIO32 via isolation switch</td></tr>
-<tr><td>DVP_VSYNC</td><td>PA5 (40)</td><td>AF11</td><td>DIO</td></tr>
-<tr><td rowspan="2">Analog in</td><td>ADC_IN10 + HSADC_IN0</td><td>PC0 (26)</td><td>analog</td><td>V18</td><td>conditioned generator (OPA2356 A)</td></tr>
-<tr><td>ADC_IN11 + HSADC_IN1</td><td>PC1 (27)</td><td>analog</td><td>V18</td><td>spare, to test pad</td></tr>
-<tr><td>Reference</td><td>VREFP</td><td>VREFP (32)</td><td>—</td><td>—</td><td>AVCC (TPS7A20 3.3 V)</td></tr>
-<tr><td rowspan="7">microSD (SDMMC, RM=00)</td><td>SDMMC_CMD</td><td>PD2 (101)</td><td rowspan="6">SDMMC</td><td>V18</td><td rowspan="7">microSD socket, 4-bit</td></tr>
-<tr><td>SDMMC_SDCK</td><td>PC12 (98)</td><td>V18</td></tr>
-<tr><td>SDMMC_D0</td><td>PC8 (85)</td><td>V18</td></tr>
-<tr><td>SDMMC_D1</td><td>PC9 (86)</td><td>V18</td></tr>
-<tr><td>SDMMC_D2</td><td>PC10 (96)</td><td>V18</td></tr>
-<tr><td>SDMMC_D3</td><td>PC11 (97)</td><td>V18</td></tr>
-<tr><td>Card detect</td><td>PD0 (99)</td><td>GPIO</td><td>V18</td></tr>
-<tr><td rowspan="6">QSPI2 link</td><td>QSPI2_SCK</td><td>PE10 (55)</td><td>AF7</td><td>V18</td><td rowspan="6">RP GPIO6–11 via isolation switch</td></tr>
-<tr><td>QSPI2_SCSN</td><td>PE11 (56)</td><td>AF7</td><td>V18</td></tr>
-<tr><td>QSPI2_SIO0</td><td>PE12 (57)</td><td>AF7</td><td>V18</td></tr>
-<tr><td>QSPI2_SIO1</td><td>PE13 (58)</td><td>AF7</td><td>V18</td></tr>
-<tr><td>QSPI2_SIO2</td><td>PE14 (59)</td><td>AF7</td><td>V18</td></tr>
-<tr><td>QSPI2_SIO3</td><td>PE15 (60)</td><td>AF7</td><td>V18</td></tr>
-<tr><td rowspan="2">UART (also ISP)</td><td>USART1_TX</td><td>PB6 (118)</td><td>AF7</td><td>DIO</td><td>RP GPIO1 (UART0 RX)</td></tr>
-<tr><td>USART1_RX</td><td>PB7 (119)</td><td>AF7</td><td>DIO</td><td>RP GPIO0 (UART0 TX)</td></tr>
-<tr><td rowspan="2">I2C link</td><td>I2C2_SCL</td><td>PB10 (61)</td><td>AF4</td><td>V18</td><td>RP GPIO3 (I2C1 SCL)</td></tr>
-<tr><td>I2C2_SDA</td><td>PB11 (62)</td><td>AF4</td><td>V18</td><td>RP GPIO2 (I2C1 SDA)</td></tr>
-<tr><td>Logic bus</td><td>GPIO0–7</td><td>PD8–PD15 (69–76)</td><td>GPIO / timers</td><td>DIO (PD8), V18</td><td>RP GPIO12–19</td></tr>
-<tr><td rowspan="2">Timing out</td><td>TIM1_CH1 (shot marker)</td><td>PA8 (87)</td><td>AF1</td><td>DIO</td><td>RP GPIO33</td></tr>
-<tr><td>MCO (clock out)</td><td>PB0 (45)</td><td>AF0</td><td>V18</td><td>RP GPIO34 (frequency counter)</td></tr>
+<tr><td rowspan="3">USB3 (J1)</td><td>SSTX A/B, SSRX A/B</td><td>dedicated USB3 pins (123–128)</td><td>—</td><td>J1 one orientation (TX1/RX1), AC caps on TX (D27)</td></tr>
+<tr><td>USBHS DP / SWCLK</td><td>PB8 (120)</td><td>—</td><td>TS3USB221A → J1 D+ or RP SWCLK</td></tr>
+<tr><td>USBHS DM / SWIO</td><td>PB9 (121)</td><td>—</td><td>TS3USB221A → J1 D− or RP SWIO</td></tr>
+<tr><td rowspan="2">USBFS (J2)</td><td>USBFS DM</td><td>PA11 (90)</td><td>—</td><td>J2 D− (USB ISP entry: DM low)</td></tr>
+<tr><td>USBFS DP</td><td>PA12 (91)</td><td>—</td><td>J2 D+ (USB ISP entry: DP high at power-on)</td></tr>
+<tr><td rowspan="2">Clock / reset</td><td>HSE 25 MHz crystal</td><td>XI (23) / XO (24)</td><td>—</td><td>crystal</td></tr>
+<tr><td>NRST</td><td>NRST (25)</td><td>—</td><td>RP GPIO37 open-drain + reset button</td></tr>
+<tr><td rowspan="12">Capture — primary (ADC10065)</td><td>DVP_D0</td><td>PE0 (111)</td><td>AF11</td><td rowspan="10">ADC10065 D0–D9 (DNP)</td></tr>
+<tr><td>DVP_D1</td><td>PE1 (112)</td><td>AF11</td></tr>
+<tr><td>DVP_D2</td><td>PE2 (1)</td><td>AF13</td></tr>
+<tr><td>DVP_D3</td><td>PE3 (2)</td><td>AF13</td></tr>
+<tr><td>DVP_D4</td><td>PE4 (3)</td><td>AF13</td></tr>
+<tr><td>DVP_D5</td><td>PF14 (113)</td><td>AF11</td></tr>
+<tr><td>DVP_D6</td><td>PE5 (4)</td><td>AF13</td></tr>
+<tr><td>DVP_D7</td><td>PE6 (5)</td><td>AF13</td></tr>
+<tr><td>DVP_D8</td><td>PF4 (109)</td><td>AF11</td></tr>
+<tr><td>DVP_D9</td><td>PF3 (108)</td><td>AF11</td></tr>
+<tr><td>DVP_PCLK</td><td>PF13 (50)</td><td>AF11</td><td>Si5351 CLK1</td></tr>
+<tr><td>TIM1_ETR (sample counter)</td><td>PE7 (52)</td><td>AF1</td><td>Si5351 CLK1 (same net)</td></tr>
+<tr><td rowspan="9">Capture — alternate = logic bus (RP counter, D36)</td><td>DVP_D0 / LOGIC0</td><td>PC6 (83)</td><td>AF13</td><td>RP GPIO12</td></tr>
+<tr><td>DVP_D1 / LOGIC1</td><td>PC7 (84)</td><td>AF13</td><td>RP GPIO13</td></tr>
+<tr><td>DVP_D2 / LOGIC2</td><td>PB13 (66)</td><td>AF13</td><td>RP GPIO14</td></tr>
+<tr><td>DVP_D3 / LOGIC3</td><td>PF5 (110)</td><td>AF13</td><td>RP GPIO15</td></tr>
+<tr><td>DVP_D4 / LOGIC4</td><td>PD12 (73)</td><td>AF13</td><td>RP GPIO16</td></tr>
+<tr><td>DVP_D5 / LOGIC5</td><td>PD13 (74)</td><td>AF13</td><td>RP GPIO17</td></tr>
+<tr><td>DVP_D6 / LOGIC6</td><td>PD14 (75)</td><td>AF13</td><td>RP GPIO18</td></tr>
+<tr><td>DVP_D7 / LOGIC7</td><td>PD15 (76)</td><td>AF13</td><td>RP GPIO19</td></tr>
+<tr><td>DVP_PCLK / LOGIC8</td><td>PA6 (41)</td><td>AF13</td><td>RP GPIO20 (PIO side-set)</td></tr>
+<tr><td rowspan="2">Sync</td><td>DVP_HSYNC</td><td>PA4 (39)</td><td>AF13</td><td rowspan="2">RP GPIO31 / GPIO32 (series R)</td></tr>
+<tr><td>DVP_VSYNC</td><td>PA5 (40)</td><td>AF11</td></tr>
+<tr><td rowspan="2">Analog in</td><td>ADC_IN10 + HSADC_IN0</td><td>PC0 (26)</td><td>analog</td><td>ADC_IN net (header pin 2), AC + mid-rail bias (D35)</td></tr>
+<tr><td>ADC_IN11 + HSADC_IN1</td><td>PC1 (27)</td><td>analog</td><td>spare, to test pad</td></tr>
+<tr><td>Reference</td><td>VREFP</td><td>VREFP (32)</td><td>—</td><td>VDD33A (ferrite from 3V3_CH32, D39)</td></tr>
+<tr><td rowspan="7">microSD (SDMMC, RM=00)</td><td>SDMMC_CMD</td><td>PD2 (101)</td><td>SDMMC</td><td rowspan="7">microSD socket, 4-bit</td></tr>
+<tr><td>SDMMC_SDCK</td><td>PC12 (98)</td><td></td></tr>
+<tr><td>SDMMC_D0</td><td>PC8 (85)</td><td></td></tr>
+<tr><td>SDMMC_D1</td><td>PC9 (86)</td><td></td></tr>
+<tr><td>SDMMC_D2</td><td>PC10 (96)</td><td></td></tr>
+<tr><td>SDMMC_D3</td><td>PC11 (97)</td><td></td></tr>
+<tr><td>Card detect</td><td>PD0 (99)</td><td>GPIO</td></tr>
+<tr><td rowspan="6">QSPI2 link (CH32 master, D38)</td><td>QSPI2_SCK</td><td>PE10 (55)</td><td>AF7</td><td rowspan="6">RP GPIO6–11 (PIO slave)</td></tr>
+<tr><td>QSPI2_SCSN</td><td>PE11 (56)</td><td>AF7</td></tr>
+<tr><td>QSPI2_SIO0</td><td>PE12 (57)</td><td>AF7</td></tr>
+<tr><td>QSPI2_SIO1</td><td>PE13 (58)</td><td>AF7</td></tr>
+<tr><td>QSPI2_SIO2</td><td>PE14 (59)</td><td>AF7</td></tr>
+<tr><td>QSPI2_SIO3</td><td>PE15 (60)</td><td>AF7</td></tr>
+<tr><td rowspan="2">UART (also ISP)</td><td>USART1_TX</td><td>PB6 (118)</td><td>AF7</td><td>RP GPIO1 (UART0 RX)</td></tr>
+<tr><td>USART1_RX</td><td>PB7 (119)</td><td>AF7</td><td>RP GPIO0 (UART0 TX)</td></tr>
+<tr><td rowspan="2">I2C link</td><td>I2C2_SCL</td><td>PB10 (61)</td><td>AF4</td><td>RP GPIO3; pull-ups on 3V3_CH32 (D29)</td></tr>
+<tr><td>I2C2_SDA</td><td>PB11 (62)</td><td>AF4</td><td>RP GPIO2</td></tr>
+<tr><td rowspan="2">Timing out</td><td>TIM1_CH1 (shot marker)</td><td>PA8 (87)</td><td>AF1</td><td>RP GPIO33</td></tr>
+<tr><td>MCO (clock out)</td><td>PB0 (45)</td><td>AF0</td><td>RP GPIO34 (frequency counter)</td></tr>
 </tbody></table></div>
-<div class="note">Free for later: PA0–PA3, PA6, PA7, PA9, PA10, PA13–PA15, PB1–PB5, PB12–PB15, PC2–PC7, PD1, PD3–PD7, PE8, PE9, PF0–PF2, PF5–PF12. PB3/PB4 (USBPD CC) are unused, because the HD3SS3220 handles CC on J1. Ethernet, SerDes and USBPD pins are not used.</div>
+<p class="sub">Free: PA0–PA3, PA7, PA9, PA10, PA13–PA15, PB1–PB5, PB12, PB14, PB15, PC2–PC5, PD1, PD3–PD11, PE8, PE9, PF0–PF2, PF6–PF12. PB3/PB4 (USBPD CC) unused: J1 CC uses fixed 5.1 kΩ Rd.</p>
 
 <h2 id="rp">5. RP2354B pin plan (48 GPIO)</h2>
-<p class="sub">The RP2350A has 30 GPIO, which is too few; the B variant (QFN80) is needed. RP2354B = RP2350B with 2 MB flash in the package (saves a flash chip on a playing-card board). All 48 GPIO are used.</p>
+<p class="sub">RP2354B kept (D24): 30 of 48 GPIO used, 18 spare for later tests.</p>
 <div class="tbl"><table>
 <thead><tr><th>GPIO</th><th>Function</th><th>Peripheral</th><th>Connects to</th></tr></thead>
 <tbody>
@@ -209,52 +217,45 @@ flowchart LR
 <tr><td>1</td><td>UART0 RX</td><td>UART0</td><td>CH32 PB6 USART1_TX</td></tr>
 <tr><td>2</td><td>I2C1 SDA (link)</td><td>I2C1</td><td>CH32 PB11 I2C2_SDA</td></tr>
 <tr><td>3</td><td>I2C1 SCL (link)</td><td>I2C1</td><td>CH32 PB10 I2C2_SCL</td></tr>
-<tr><td>4</td><td>I2C0 SDA (mgmt)</td><td>I2C0</td><td>Si5351A, INA3221, HD3SS3220</td></tr>
-<tr><td>5</td><td>I2C0 SCL (mgmt)</td><td>I2C0</td><td>Si5351A, INA3221, HD3SS3220</td></tr>
+<tr><td>4</td><td>I2C0 SDA (mgmt)</td><td>I2C0</td><td>Si5351A</td></tr>
+<tr><td>5</td><td>I2C0 SCL (mgmt)</td><td>I2C0</td><td>Si5351A</td></tr>
 <tr><td>6</td><td>QSPI SCK</td><td>PIO0 (slave)</td><td>CH32 PE10</td></tr>
 <tr><td>7</td><td>QSPI CS</td><td>PIO0</td><td>CH32 PE11</td></tr>
 <tr><td>8–11</td><td>QSPI IO0–IO3</td><td>PIO0</td><td>CH32 PE12–PE15</td></tr>
-<tr><td>12–19</td><td>Logic 0–7</td><td>GPIO / PIO</td><td>CH32 PD8–PD15</td></tr>
-<tr><td>20–29</td><td>Counter D0–D9</td><td>PIO1 (base 16)</td><td>capture switch input B</td></tr>
-<tr><td>30</td><td>Counter PCLK</td><td>PIO1 side-set</td><td>capture switch input B</td></tr>
-<tr><td>31</td><td>DVP HSYNC</td><td>PIO1</td><td>CH32 PA4</td></tr>
-<tr><td>32</td><td>DVP VSYNC</td><td>PIO1</td><td>CH32 PA5</td></tr>
+<tr><td>12–19</td><td>Logic 0–7 / counter D0–D7</td><td>GPIO / PIO1</td><td>CH32 PC6, PC7, PB13, PF5, PD12–PD15</td></tr>
+<tr><td>20</td><td>Logic 8 / counter PCLK</td><td>PIO1 side-set</td><td>CH32 PA6</td></tr>
+<tr><td>21–30</td><td><i>spare</i></td><td>—</td><td>test pads</td></tr>
+<tr><td>31</td><td>DVP HSYNC</td><td>GPIO / PIO1</td><td>CH32 PA4</td></tr>
+<tr><td>32</td><td>DVP VSYNC</td><td>GPIO / PIO1</td><td>CH32 PA5</td></tr>
 <tr><td>33</td><td>Shot marker in</td><td>GPIO / PIO</td><td>CH32 PA8 TIM1_CH1</td></tr>
 <tr><td>34</td><td>MCO in</td><td>frequency counter</td><td>CH32 PB0 MCO</td></tr>
 <tr><td>35</td><td>SWIO</td><td>PIO2 (funprog)</td><td>TS3USB221A → CH32 PB9</td></tr>
 <tr><td>36</td><td>SWCLK</td><td>PIO2 (funprog)</td><td>TS3USB221A → CH32 PB8</td></tr>
 <tr><td>37</td><td>CH32 NRST</td><td>open-drain</td><td>CH32 NRST</td></tr>
-<tr><td>38</td><td>CH32 PWR_EN</td><td>GPIO</td><td>CH32-domain regulators EN + isolation switch OE</td></tr>
-<tr><td>39</td><td>USB_SEL</td><td>GPIO</td><td>TS3USB221A S (pull-down default = USB connector)</td></tr>
-<tr><td>40</td><td>ADC0: CH32 3V3 sense</td><td>ADC</td><td>3V3_CH32 divider</td></tr>
-<tr><td>41</td><td>ADC1: VSYS sense</td><td>ADC</td><td>VSYS divider</td></tr>
-<tr><td>42</td><td>ADC2: generator sense</td><td>ADC</td><td>OPA2356 output</td></tr>
-<tr><td>43</td><td>CAP_SEL</td><td>GPIO</td><td>capture switch select (default = ADC10065)</td></tr>
-<tr><td>44</td><td>DDS W_CLK</td><td>GPIO</td><td>74AHCT125 → AD9851</td></tr>
-<tr><td>45</td><td>DDS FQ_UD</td><td>GPIO</td><td>74AHCT125 → AD9851</td></tr>
-<tr><td>46</td><td>DDS DATA (D7)</td><td>GPIO</td><td>74AHCT125 → AD9851 serial load</td></tr>
-<tr><td>47</td><td>DDS RESET</td><td>GPIO</td><td>74AHCT125 → AD9851</td></tr>
+<tr><td>38</td><td>CH32 PWR_EN</td><td>GPIO</td><td>load switch EN (pull-up: ON by default, D15)</td></tr>
+<tr><td>39</td><td>USB_SEL</td><td>GPIO</td><td>TS3USB221A S (pull-down: USB connector)</td></tr>
+<tr><td>40</td><td>ADC0: 3V3_CH32 sense</td><td>ADC</td><td>divider</td></tr>
+<tr><td>41</td><td>ADC1: VSYS sense</td><td>ADC</td><td>divider</td></tr>
+<tr><td>42–47</td><td><i>spare</i> (ADC2–7)</td><td>—</td><td>test pads</td></tr>
 <tr><td>QSPI pins</td><td>internal flash</td><td>—</td><td>RP2354B in-package flash</td></tr>
 <tr><td>USB DP/DM</td><td>USB</td><td>—</td><td>J3</td></tr>
 </tbody></table></div>
-<div class="note">The pin budget is used up: there are no GPIO left for INA/HD3SS3220 interrupts (polled instead) or a USBFS DP "force ISP" line (the UART ISP fallback covers it). If more lines are needed: drop logic lines 6–7, or move the DDS control to an I2C GPIO expander.</div>
 
 <h2 id="link">6. RP2350 ↔ CH32 interconnect</h2>
 <div class="tbl"><table>
-<thead><tr><th>Link</th><th>Lines</th><th>RP2350</th><th>CH32</th><th>Direction</th><th>Path / protection</th></tr></thead>
+<thead><tr><th>Link</th><th>Lines</th><th>RP2350</th><th>CH32</th><th>Direction</th><th>Protection (D29)</th></tr></thead>
 <tbody>
-<tr><td>UART</td><td>2</td><td>GPIO0 TX, GPIO1 RX</td><td>PB7 RX, PB6 TX</td><td>↔</td><td>isolation switch; also UART ISP (D11 fallback)</td></tr>
-<tr><td>I2C</td><td>2</td><td>GPIO2 SDA, GPIO3 SCL</td><td>PB11, PB10</td><td>↔</td><td>isolation switch; pull-ups on CH32 side</td></tr>
-<tr><td>QSPI</td><td>6</td><td>GPIO6–11</td><td>PE10–PE15</td><td>CH32 master → RP PIO slave</td><td>isolation switch</td></tr>
-<tr><td>Logic</td><td>8</td><td>GPIO12–19</td><td>PD8–PD15</td><td>↔ (configurable)</td><td>isolation switch</td></tr>
-<tr><td>DVP sync</td><td>2</td><td>GPIO31, 32</td><td>PA4, PA5</td><td>RP → CH32</td><td>isolation switch</td></tr>
-<tr><td>Marker / MCO</td><td>2</td><td>GPIO33, 34</td><td>PA8, PB0</td><td>CH32 → RP</td><td>isolation switch</td></tr>
-<tr><td>Counter pattern</td><td>11</td><td>GPIO20–30</td><td>PE0–PE6, PF3, PF4, PF14, PF13 (+PE7)</td><td>RP → CH32</td><td>capture 2:1 switch (acts as isolation)</td></tr>
-<tr><td>Debug</td><td>2</td><td>GPIO35, 36</td><td>PB9, PB8</td><td>↔</td><td>TS3USB221A (D14)</td></tr>
-<tr><td>Reset</td><td>1</td><td>GPIO37</td><td>NRST</td><td>RP → CH32</td><td>open-drain, no pull-up on the RP side</td></tr>
-<tr><td>Power</td><td>1</td><td>GPIO38</td><td>CH32 domain EN</td><td>RP → regulators</td><td>pull-down = off? see P1-6</td></tr>
+<tr><td>UART</td><td>2</td><td>GPIO0 TX, GPIO1 RX</td><td>PB7 RX, PB6 TX</td><td>↔</td><td>series R; also UART ISP (D11)</td></tr>
+<tr><td>I2C</td><td>2</td><td>GPIO2 SDA, GPIO3 SCL</td><td>PB11, PB10</td><td>↔</td><td>pull-ups on 3V3_CH32</td></tr>
+<tr><td>QSPI</td><td>6</td><td>GPIO6–11</td><td>PE10–PE15</td><td>CH32 master → RP PIO slave</td><td>series R ≈ 33 Ω</td></tr>
+<tr><td>Logic / counter</td><td>9</td><td>GPIO12–20</td><td>PC6, PC7, PB13, PF5, PD12–PD15, PA6</td><td>↔ (RP → CH32 in counter mode)</td><td>series R ≈ 33–47 Ω</td></tr>
+<tr><td>DVP sync</td><td>2</td><td>GPIO31, 32</td><td>PA4, PA5</td><td>RP → CH32</td><td>series R</td></tr>
+<tr><td>Marker / MCO</td><td>2</td><td>GPIO33, 34</td><td>PA8, PB0</td><td>CH32 → RP</td><td>series R</td></tr>
+<tr><td>Debug</td><td>2</td><td>GPIO35, 36</td><td>PB9, PB8</td><td>↔</td><td>TS3USB221A (D14, D26)</td></tr>
+<tr><td>Reset</td><td>1</td><td>GPIO37</td><td>NRST</td><td>RP → CH32</td><td>open-drain</td></tr>
+<tr><td>Power</td><td>1</td><td>GPIO38</td><td>load switch EN</td><td>RP → switch</td><td>—</td></tr>
 </tbody></table></div>
-<p>Isolation: 22 lines through 3 × SN74CB3T3245-class FET bus switches (bidirectional, Ioff, 5 V tolerant). Their OE is driven by the CH32 power-good signal, so they open automatically whenever the CH32 domain is down (D08).</p>
+<p>No bus switches (D29): the RP2350 is always powered, so the only back-feed direction is RP → CH32. Power-off sequence in RP firmware: tri-state GPIO0–20 and 31–36, disable Si5351 CLK0–2, assert NRST, then drop PWR_EN; check GPIO40 reads ≈ 0 V. Series resistors only limit clamp current if firmware misbehaves.</p>
 
 <h2 id="props">7. New proposals in this document (to approve → DECISIONS.md)</h2>
 <div class="tbl"><table>
@@ -285,6 +286,80 @@ flowchart LR
 <tr><td>P2-8 <span class="tag d">D41</span></td><td>Power inputs: drop the external 5 V input → 3 × LM66100 (J1, J2, J3 VBUS)</td><td>One input and one ideal diode less</td></tr>
 <tr><td>P2-9 <span class="tag d">D40</span></td><td>Keep J2 (CH32 USBFS USB-C) or drop it (UART ISP via RP2350 covers ISP)</td><td>Dropping saves a connector + an LM66100; loses USBFS tests</td></tr>
 </tbody></table></div>
+<h3>P3 — parts list and area budget (2026-11-13)</h3>
+<div class="tbl"><table>
+<thead><tr><th>ID</th><th>Proposal</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>P3-1</td><td>ADC10065 IRS on a 3-way solder jumper (VDDA = 2 Vpp default / GND = 1.5 Vpp / open = 1 Vpp)</td><td>Generator amplitude is only estimated (1.5–2 Vpp); zero parts</td></tr>
+<tr><td>P3-2</td><td>Single-sided assembly (all parts on top); supersedes the double-sided allowance of D19</td><td>Area budget ≈ 34 % of one side; cheaper JLC assembly</td></tr>
+<tr><td>P3-3</td><td>CH32H417QEU6 sourcing — 0 stock at JLC: (a) JLC global sourcing / pre-order, (b) consign parts bought elsewhere, (c) DNP + hand-solder</td><td>0.35 mm-pitch QFN128 by hand is hard → recommend (a) or (b)</td></tr>
+<tr><td>P3-4</td><td>USB ESD: USBLC6-2 on J1/J2/J3 D± + RClamp0524P on J1 SS pairs</td><td>≈ $0.40 total; 0.3 pF keeps USB3 SI; optional under D22</td></tr>
+<tr><td>P3-5</td><td>Clock chip = genuine SI5351A-B-GTR (not the MS5351M clone)</td><td>Clone rated 2.7–3.3 V (3V3 rail at its limit) and register/jitter equivalence unverified</td></tr>
+<tr><td>P3-6</td><td>Adopt §8 as the rev A part selection (TLV62569 buck, TPS22918 load switch, TS3USB221A, top-mount 24-pin USB-C, TF-01A, 10 pF 12 MHz crystal)</td><td>All stocked; parts chosen for minimum count (D22)</td></tr>
+</tbody></table></div>
+
+<h2 id="bom">8. Parts list — ICs and key parts (JLC/LCSC snapshot 2026-11-13)</h2>
+<p class="sub">JLC parts API, stock and USD price @10 / @100. B = Basic, E = Extended. Passives (0402 R/C) not listed. Economic vs Standard assembly is not shown by the API → check in the JLC quote.</p>
+<div class="tbl"><table>
+<thead><tr><th>Ref</th><th>Function</th><th>MPN</th><th>LCSC</th><th>Package</th><th>Stock</th><th>Price</th><th>Class</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>U1</td><td>MCU</td><td>CH32H417QEU6</td><td>C49363240</td><td>QFN-128 12.3 mm, 0.35 mm</td><td><b>0</b></td><td>3.93 (list)</td><td>E</td><td>⚠ no stock — P3-3</td></tr>
+<tr><td>U2</td><td>Supervisor</td><td>RP2354B</td><td>C39843328</td><td>QFN-80 10×10</td><td>524</td><td>1.44 / 1.37</td><td>E</td><td>fallback RP2350B C42415655 + flash</td></tr>
+<tr><td>U3</td><td>Clocks</td><td>SI5351A-B-GTR</td><td>C504891</td><td>MSOP-10</td><td>12 248</td><td>1.04 / 0.80</td><td>E</td><td>reel of -GT; clone MS5351M C1509083 — P3-5</td></tr>
+<tr><td>Y1</td><td>Si5351 xtal 25 MHz 10 pF</td><td>X322525MMB4SI</td><td>C70582</td><td>3225</td><td>105 267</td><td>0.079</td><td>E</td><td></td></tr>
+<tr><td>Y2</td><td>CH32 HSE 25 MHz 12 pF</td><td>X322525MOB4SI</td><td>C9006</td><td>3225</td><td>342 501</td><td>0.076</td><td>B</td><td></td></tr>
+<tr><td>Y3</td><td>RP2350 12 MHz 10 pF</td><td>X322512MMB4SI</td><td>C50430</td><td>3225</td><td>9 655</td><td>0.07</td><td>E</td><td>10 pF like the RP2350 reference (ABM8-272); Basic C9002 is 20 pF</td></tr>
+<tr><td>U4</td><td>USB2 switch</td><td>TS3USB221ARSER</td><td>C128396</td><td>UQFN-10</td><td>99 898</td><td>0.18 / 0.16</td><td>E</td><td>900 MHz BW</td></tr>
+<tr><td>U5–U7</td><td>Ideal diode ×3</td><td>LM66100DCKR</td><td>C2869734</td><td>SC-70-6</td><td>41 446</td><td>0.15 / 0.13</td><td>E</td><td>D41: J1/J2/J3</td></tr>
+<tr><td>U8</td><td>3V3 buck 2 A</td><td>TLV62569DBVR</td><td>C141836</td><td>SOT-23-5</td><td>640 750</td><td>0.053</td><td>E</td><td>no 2 A sync buck in Basic</td></tr>
+<tr><td>L1</td><td>Buck inductor 2.2 µH</td><td>DFE252012F-2R2M=P2</td><td>C576403</td><td>1008</td><td>12 048</td><td>0.12</td><td>E</td><td>Isat 3.6 A</td></tr>
+<tr><td>U9</td><td>CH32 load switch</td><td>TPS22918DBVR</td><td>C131941</td><td>SOT-23-6</td><td>67 546</td><td>0.25 / 0.21</td><td>E</td><td>2 A, 53 mΩ, QOD</td></tr>
+<tr><td>L2</td><td>RP2350 SMPS 3.3 µH</td><td>AOTA-B201610S3R3-101-T</td><td>C42411119</td><td>0806</td><td><b>143</b></td><td>0.27</td><td>E</td><td>⚠ low stock, reserve early</td></tr>
+<tr><td>J1</td><td>USB-C 3.x 24-pin</td><td>TYPE-C 24P QT</td><td>C2681555</td><td>SMD R/A</td><td>75 467</td><td>0.41 / 0.35</td><td>E</td><td>no stocked mid-mount; shell style to check</td></tr>
+<tr><td>J2, J3</td><td>USB-C 2.0 16-pin</td><td>TYPE-C 16PIN 2MD(073)</td><td>C2765186</td><td>SMD R/A</td><td>1 054 907</td><td>0.058</td><td>E</td><td></td></tr>
+<tr><td>J4</td><td>microSD push-push</td><td>TF-01A</td><td>C91145</td><td>SMD</td><td>135 605</td><td>0.15</td><td>E</td><td></td></tr>
+<tr><td>D1–D3</td><td>USB2 ESD</td><td>USBLC6-2SC6</td><td>C7519</td><td>SOT-23-6</td><td>42 978</td><td>0.12</td><td>E</td><td>P3-4</td></tr>
+<tr><td>D4</td><td>USB3 SS ESD</td><td>RClamp0524PATCT</td><td>C40960</td><td>DFN-10</td><td>154 186</td><td>0.05</td><td>E</td><td>0.3 pF — P3-4</td></tr>
+<tr><td>FB</td><td>Ferrite 600 Ω</td><td>GZ1608D601TF</td><td>C1002</td><td>0603</td><td>1.4 M</td><td>0.008</td><td>B</td><td></td></tr>
+<tr><td>L3–L4</td><td>LPF inductors</td><td>LQW18AN R22/R47</td><td>C86139 / C113132</td><td>0603</td><td>41k / 12k</td><td>0.04</td><td>E</td><td>values from filter design</td></tr>
+<tr><td>SW1–SW2</td><td>Reset, BOOTSEL</td><td>TS-1187A-B-A-B</td><td>C318884</td><td>5.1×5.1</td><td>814 790</td><td>0.017</td><td>B</td><td></td></tr>
+<tr><td>U10</td><td>Parallel ADC</td><td>ADC10065CIMT/NOPB</td><td>C1542621</td><td>TSSOP-28</td><td>4</td><td>14.05</td><td>E</td><td><b>DNP</b> (D42), user-fitted</td></tr>
+<tr><td>J5</td><td>1×4 header + shunt</td><td>2.54 mm</td><td>—</td><td>TH</td><td>—</td><td>—</td><td>—</td><td>generic</td></tr>
+</tbody></table></div>
+<ul>
+<li><b>≈ 20 unique IC/connector lines, almost all Extended</b> (each adds JLC's Extended-part loading fee). Basic only: 25 MHz HSE crystal, ferrite, buttons, and the 0402 passives.</li>
+<li>Rejected: WAS4729 (80 MHz BW, not USB2 HS), TPS22919 (1.5 A).</li>
+</ul>
+
+<h2 id="area">9. Area budget (playing-card outline, D19)</h2>
+<p class="sub">Courtyard estimates incl. local decoupling, from package sizes (CH32H417 QFN128 = 12.3 × 12.3 mm, 0.35 mm pitch, DS V1.9 §4.1). Board = 63.5 × 88.9 mm = 5645 mm² per side.</p>
+<div class="tbl"><table>
+<thead><tr><th>Block</th><th>Footprint estimate</th><th>mm²</th></tr></thead>
+<tbody>
+<tr><td>CH32H417 QFN128 + decoupling ring</td><td>18 × 18</td><td>324</td></tr>
+<tr><td>RP2354B QFN80 + SMPS inductor + decoupling</td><td>15 × 15</td><td>225</td></tr>
+<tr><td>microSD push-push socket</td><td>15 × 14.5</td><td>218</td></tr>
+<tr><td>J1 USB-C 3.x (24-pin)</td><td>9.5 × 8</td><td>76</td></tr>
+<tr><td>J2, J3 USB-C 2.0 (16-pin)</td><td>2 × 9 × 7.5</td><td>136</td></tr>
+<tr><td>ADC10065 TSSOP-28 + passives (DNP part, fitted footprint)</td><td>14 × 10</td><td>140</td></tr>
+<tr><td>Si5351A + 25 MHz crystal</td><td>8 × 8</td><td>64</td></tr>
+<tr><td>LC filter + bias networks</td><td>—</td><td>100</td></tr>
+<tr><td>1×4 2.54 mm header + jumper</td><td>12 × 4</td><td>48</td></tr>
+<tr><td>3V3 buck + inductor + caps</td><td>10 × 8</td><td>80</td></tr>
+<tr><td>Load switch, 3 × LM66100, TS3USB221A</td><td>—</td><td>98</td></tr>
+<tr><td>USB ESD (3 × USBLC6 + SS array)</td><td>—</td><td>48</td></tr>
+<tr><td>Crystals CH32 25 MHz + RP 12 MHz</td><td>2 × 5 × 5</td><td>50</td></tr>
+<tr><td>2 buttons (CH32 reset, RP BOOTSEL)</td><td>2 × 5 × 4</td><td>40</td></tr>
+<tr><td>Series resistors (≈ 30 lines, 0402 arrays)</td><td>—</td><td>30</td></tr>
+<tr><td>Test pads (spare RP GPIO, logic), LEDs</td><td>—</td><td>60</td></tr>
+<tr><td>4 × M3 mounting holes (keep-out)</td><td>4 × 6.5²</td><td>170</td></tr>
+<tr><td><b>Total</b></td><td></td><td><b>≈ 1900 (34 % of one side)</b></td></tr>
+</tbody></table></div>
+<ul>
+<li><b>Fits on one side with room for routing</b> (rule of thumb: ≤ 50–60 % placement density). Double-sided assembly is not needed → proposal P3-2.</li>
+<li>Placement sketch: J1 + J2 on one short edge with the CH32 right behind J1 (SS pairs &lt; 15 mm); J3 on the opposite short edge next to the RP2354B; microSD at a corner beside the CH32 (SDMMC on PC8–PC12/PD2 side); ADC10065 + filter + header along a long edge next to the DVP pins (PE0–PE6, PF3/PF4/PF14), away from J1; logic/counter lines (PC6/PC7/PB13/PF5/PD12–15/PA6) run RP → CH32 across the middle, length-matched loosely (≤ 5 mm skew at 75 MHz).</li>
+<li>⚠ 0.35 mm pitch QFN128: needs ≤ 0.09 mm (3.5 mil) trace/space to fan out under 6-layer JLC rules — check JLC capability + stencil before layout.</li>
+</ul>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
 <script>

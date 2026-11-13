@@ -47,3 +47,4 @@ Format: ID · date · decision · why · alternatives considered · decided by �
 | D39 | 2026-11-13 | **P2-7 approved:** VDD33A/VREFP from CH32 3V3 via ferrite + caps, no LDO | D22; HSADC needs VDD33A ≥ 3.0 V only | TPS7A20 LDO | user | §6a |
 | D40 | 2026-11-13 | **P2-9: keep J2** (CH32 USBFS USB-C) | USBFS tests + USB ISP path | Drop J2 | user | §5 |
 | D41 | 2026-11-13 | **P2-8 approved: no external 5 V power input.** Board power = J1, J2, J3 VBUS only, ORed by 3 × LM66100 | D22: one connector + one ideal diode less; any USB cable already powers the board (D15) | 4th input (external 5 V header) | user | §7 |
+| D42 | 2026-11-13 | **ADC10065 = DNP** on the JLC assembly; footprint (TSSOP-28) and all its passives fitted, the user hand-solders their own part | User already has ADC10065 parts; avoids sourcing/lifecycle risk | JLC-assembled ADC10065 | user | §8, §9 |

@@ -1,20 +1,17 @@
 # TODO
 
 ## Open questions (user)
+- [ ] Answer P3-1..P3-6 (`docs/design/block-diagram.html` §7) — esp. P3-3 CH32H417QEU6 sourcing (0 JLC stock)
 
 ## Datasheets
 - [ ] Get QingKe V5/V3 processor manuals (debug module details for RP-side SDI)
-- [ ] Check ADC10065 availability/lifecycle status
 
 ## Design
-- [ ] RM: confirm DVP takes data only from the AF-selected pin set (D36)
-- [ ] RM/hardware: JPEG-mode continuous DVP capture with static HSYNC is gapless (D37)
-- [ ] Redraw block diagram / power tree / pin plans in `docs/design/block-diagram.html` for D22–D31 (freed RP GPIO20–32, 44–47)
-- [ ] Verify CH32 internal-LDO dissipation at full USB3 load (D25)
+- [ ] Hardware: JPEG-mode continuous DVP capture with static HSYNC is gapless (D37; RM supports it)
+- [ ] Hardware: measure CH32 temperature at full USB3 load (D25; estimate +20–25 °C)
+- [ ] Order/reserve early: RP2354B, AOTA-B201610S3R3 inductor (thin JLC stock)
+- [ ] LC filter values (5th order, fc ≈ 30 MHz, 50 Ω) + check JLC 0.35 mm-pitch capability
 - [ ] Bench-check Si5351 → LC filter amplitude into ADC10065 (P2-2)
-- [ ] Full parts list with JLC availability (block diagram + pin plan done: P1)
-- [ ] Verify in RM: CH32 QSPI master-only? (P1-10)
-- [ ] Area budget / rough placement to confirm the 63.5 × 88.9 mm outline (D19)
 - [ ] RP2350 funprog port (funprog_port.h, bitbang_rvswdio.h — PIO?) + USB HID interface compatible with minichlink pgm-esp32s2-ch32xx
 - [ ] (fallback) UART ISP on PB6/PB7 driven by RP2350
 - [ ] Power tree incl. standalone power path

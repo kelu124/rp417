@@ -16,3 +16,6 @@
 - 2026-11-12 — SessionStart hook that surfaces unanswered decision points (.claude/hooks/pending-decisions.py)
 - 2026-11-13 — Reviewed P1 under D22: D23–D31 logged; USB switch chosen (TS3USB221A, D26); back-feed method settled (D29); capture switch + RP counter pattern dropped (D30); AD9851 dropped (D31)
 - 2026-11-13 — All P1/P2 proposals answered (D32–D41); external 5 V input dropped (D41)
+- 2026-11-13 — Design page redrawn for D22–D42 (system, power, capture, analog, CH32/RP pin plans, interconnect)
+- 2026-11-13 — RM checks: QSPI master-only (ch. 37) ✅; per-pin AF mux, input-mode pins not on AF inputs (§9.2) ✅; DVP JPEG mode with static HSYNC (§29) ✅ on paper
+- 2026-11-13 — CH32 LDO heat estimate (≈ 0.4 W LDO, 0.75 W chip); parts list with JLC stock (§8); area budget ≈ 34 % of one side (§9)
