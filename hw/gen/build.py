@@ -299,7 +299,7 @@ C("1u", "+3V3")
 ic("Y1", "XTAL", "25MHz 10pF", "lcsc:CRYSTAL-SMD_4P-L3.2-W2.5-BL",
    by_name={"OSC1": "SI_XA", "OSC2": "SI_XB", "GND": "GND"}, lcsc="C70582", mpn="X322525MMB4SI")
 R("33", "SI_CLK0", "ADC_CLK")      # D29 series R on clock lines
-R("33", "SI_CLK1", "SI_PCLK")
+R("0", "SI_CLK1", "SI_PCLK")       # P4-1/D57: 0R, switch Ioff isolates
 # generator (D33): 50R source, 5th-order Butterworth C-L-C-L-C, fc 30 MHz, 50R load
 R("49.9", "SI_CLK2", "LPF_IN")
 C("68p", "LPF_IN")
@@ -331,7 +331,7 @@ C("4.7u", "+3V3A_CH")
 C("100n", "+3V3_CH")
 C("4.7u", "+3V3_CH")
 for i in range(10):                              # series R at the ADC outputs
-    R("33", f"ADC_DO{i}", f"ADC_D{i}")
+    R("22", f"ADC_DO{i}", f"ADC_D{i}")   # D57
 # IRS: 3-way solder jumper, default 1-2 = VDDA = 2 Vpp (D44)
 ic("JP1", "JP3", "IRS 2/1.5/1 Vpp", "Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm",
    by_name={"A": "+3V3A_CH", "C": "ADC_IRS", "B": "GND"})
@@ -343,9 +343,11 @@ R("10k", "CH_AIN0", "GND")
 
 # 2:1 capture switch (D55): S=0 -> B1 = ADC10065 + Si5351 PCLK (default), S=1 -> B2 = RP counter.
 # Powered from the CH32 domain: Ioff isolates both sides when the CH32 is off (D29).
-cap_a = [f"CAP_D{i}" for i in range(10)] + ["CAP_PCLK", None]
-cap_b1 = [f"ADC_D{i}" for i in range(10)] + ["SI_PCLK", None]
-cap_b2 = [f"CNT_D{i}" for i in range(10)] + ["CNT_PCLK", None]
+# channels grouped by CH32 pin location (D57): U11 top edge, U12 left edge, U13 bottom edge
+order = ["D0", "D1", "D8", "D9", "D3", "D4", "D6", "D7", "D2", "D5", "PCLK", None]
+cap_a = [f"CAP_{x}" if x else None for x in order]
+cap_b1 = [(f"ADC_{x}" if x != "PCLK" else "SI_PCLK") if x else None for x in order]
+cap_b2 = [f"CNT_{x}" if x else None for x in order]
 for k in range(3):
     m = {"S": "CAP_SEL", "~{OE}": "GND", "GND": "GND", "VCC": "+3V3_CH"}
     for ch_ in range(4):
@@ -372,7 +374,7 @@ links = [("RP_UART_TX", "CH_UART_RX", "220"), ("CH_UART_TX", "RP_UART_RX", "220"
          ("QSPI_IO0", "QSPI_IO0_RP", "33"), ("QSPI_IO1", "QSPI_IO1_RP", "33"),
          ("QSPI_IO2", "QSPI_IO2_RP", "33"), ("QSPI_IO3", "QSPI_IO3_RP", "33"),
          *[(f"LOGIC{i}_RP", f"LOGIC{i}", "33") for i in range(8)],
-         *[(f"CNT_D{i}_RP", f"CNT_D{i}", "33") for i in range(10)], ("CNT_PCLK_RP", "CNT_PCLK", "33"),
+         *[(f"CNT_D{i}_RP", f"CNT_D{i}", "22") for i in range(10)], ("CNT_PCLK_RP", "CNT_PCLK", "22"),   # D57
          ("HSYNC_RP", "DVP_HSYNC", "33"), ("VSYNC_RP", "DVP_VSYNC", "33"),
          ("CH_MARK", "MARK_RP", "33"), ("CH_MCO", "MCO_RP", "33"),
          ("CH_NRST_RP", "CH_NRST", "1k")]
