@@ -31,6 +31,7 @@ code{background:var(--code);padding:0 4px;border-radius:4px;font-size:.85em}
 .tag{display:inline-block;font-size:.75rem;padding:0 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
 .tag.p{color:var(--warn);border-color:var(--warn)}
 .tag.d{color:var(--ok);border-color:var(--ok)}
+.tag.w{color:var(--muted,#888);border-color:currentColor}
 ul{margin:6px 0 6px 20px;padding:0}
 </style>
 </head>
@@ -38,7 +39,8 @@ ul{margin:6px 0 6px 20px;padding:0}
 <main>
 <h1>rp417 — block diagram &amp; pin plan</h1>
 <p class="sub">CH32H417QEU6 test board supervised by an RP2350 · proposal P1 · 2026-11-12 · source of truth: <code>SPEC.md</code>, <code>DECISIONS.md</code></p>
-<p><span class="tag d">decided</span> = logged in DECISIONS.md &nbsp; <span class="tag p">proposed</span> = new in this document, awaiting approval</p>
+<p><span class="tag d">decided</span> = logged in DECISIONS.md &nbsp; <span class="tag p">proposed</span> = new in this document, awaiting approval &nbsp; <span class="tag w">withdrawn</span> = replaced by a later proposal</p>
+<p><b>⚠ 2026-11-13 (D22–D31):</b> sections 1–6 still show the pre-simplification parts (AD9851, THS4541, HD3SS3220, INA3221, bus switches, 2:1 capture switch, 1V2 buck). They are superseded by D23–D31 and the P2 proposals in §7; a redraw is pending.</p>
 <nav>
 <a href="#system">System</a><a href="#power">Power</a><a href="#capture">Capture path</a><a href="#ch32">CH32 pins</a><a href="#rp">RP2350 pins</a><a href="#link">RP ↔ CH32</a><a href="#props">New proposals</a>
 </nav>
@@ -258,16 +260,30 @@ flowchart LR
 <div class="tbl"><table>
 <thead><tr><th>ID</th><th>Proposal</th><th>Why</th></tr></thead>
 <tbody>
-<tr><td>P1-1</td><td>Tie VIO18 to VDDIO: all CH32 I/O at 3.3 V</td><td>Allowed by the datasheet when low-voltage I/O isn't needed; ADC10065, SD and RP2350 are all 3.3 V. Gives up testing I/O at 1.2–2.5 V.</td></tr>
-<tr><td>P1-2</td><td>RP2354B (RP2350B + 2 MB in-package flash)</td><td>48 GPIO needed; saves the flash chip</td></tr>
-<tr><td>P1-3</td><td>AD9851 at 5 V (180 MHz) + 74AHCT125 level shift</td><td>At 3.3 V the AD9851 is limited to 125 MHz; at 5 V its logic-high threshold is 3.5 V</td></tr>
-<tr><td>P1-4</td><td>Si5351A: CLK0 ADC clock, CLK1 phase-tunable capture clock, CLK2 30 MHz DDS reference</td><td>Sample rate can be swept for throughput tests; capture edge can be tuned</td></tr>
+<tr><td>P1-1 <span class="tag d">D23</span></td><td>Tie VIO18 to VDDIO: all CH32 I/O at 3.3 V</td><td>Allowed by the datasheet when low-voltage I/O isn't needed; ADC10065, SD and RP2350 are all 3.3 V. Gives up testing I/O at 1.2–2.5 V.</td></tr>
+<tr><td>P1-2 <span class="tag d">D24</span></td><td>RP2354B (RP2350B + 2 MB in-package flash)</td><td>48 GPIO needed; saves the flash chip</td></tr>
+<tr><td>P1-3 <span class="tag d">D31</span></td><td>AD9851 at 5 V (180 MHz) + 74AHCT125 level shift</td><td>At 3.3 V the AD9851 is limited to 125 MHz; at 5 V its logic-high threshold is 3.5 V</td></tr>
+<tr><td>P1-4 <span class="tag w">→ P2-1</span></td><td>Si5351A: CLK0 ADC clock, CLK1 phase-tunable capture clock, CLK2 30 MHz DDS reference</td><td>Sample rate can be swept for throughput tests; capture edge can be tuned</td></tr>
 <tr><td>P1-5 <span class="tag d">D21</span></td><td>Capture on DVP only — UHSIF parked (not routed in rev A)</td><td>Pin overlap with SDMMC/ADC; DVP covers 65 MS/s</td></tr>
-<tr><td>P1-6</td><td>CH32 domain: separate 3V3 + 1V2 bucks + AVCC LDO, one EN from RP GPIO38 with default ON at power-up (standalone, D15), active discharge</td><td>Rail order; true 0 V when off</td></tr>
-<tr><td>P1-7</td><td>HD3SS3220 for J1 orientation + CC; TS3USB221A for PB8/PB9; LM66100 ORing ×4; INA3221 monitor</td><td>Reversible USB3 C plug needs an SS mux (same choice as the IvanLi-CN reference project)</td></tr>
-<tr><td>P1-8</td><td>Analog chain: AD9851 → ~60 MHz LPF → THS4541 → ADC10065; OPA2356 for CH32 ADC conditioning + header buffer</td><td>ADC10065 needs a differential input; CH32 ADCs need a 0–3.3 V signal</td></tr>
-<tr><td>P1-9</td><td>RP2350 HSYNC/VSYNC drive DVP in both capture modes</td><td>ADC10065 has no sync outputs</td></tr>
+<tr><td>P1-6 <span class="tag d">D25</span></td><td>CH32 domain: separate 3V3 + 1V2 bucks + AVCC LDO, one EN from RP GPIO38 with default ON at power-up (standalone, D15), active discharge</td><td>Rail order; true 0 V when off</td></tr>
+<tr><td>P1-7 <span class="tag d">D26 D27 D28</span></td><td>HD3SS3220 for J1 orientation + CC (<b>dropped, D27</b>); TS3USB221A for PB8/PB9 (<b>D26</b>); LM66100 ORing ×4 (→ P2-8); INA3221 monitor (<b>dropped, D28</b>)</td><td>Reversible USB3 C plug needs an SS mux (same choice as the IvanLi-CN reference project)</td></tr>
+<tr><td>P1-8 <span class="tag w">→ P2-2</span></td><td>Analog chain: AD9851 → ~60 MHz LPF → THS4541 → ADC10065; OPA2356 for CH32 ADC conditioning + header buffer</td><td>ADC10065 needs a differential input; CH32 ADCs need a 0–3.3 V signal</td></tr>
+<tr><td>P1-9</td><td>RP2350 HSYNC/VSYNC drive DVP (alternative: P2-6)</td><td>ADC10065 has no sync outputs</td></tr>
 <tr><td>P1-10</td><td>CH32 QSPI as master, RP2350 PIO as slave</td><td>To verify in the RM that CH32 QSPI is master-only</td></tr>
+</tbody></table></div>
+<h3>P2 — after the simplification constraint D22 (2026-11-13)</h3>
+<div class="tbl"><table>
+<thead><tr><th>ID</th><th>Proposal</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>P2-1</td><td>Si5351A clock plan: CLK0 = ADC10065 clock and CLK1 = phase-tunable DVP PCLK (same PLL A, same frequency); CLK2 = test-signal source (PLL B)</td><td>Only clock chip left; three outputs exactly cover ADC clock, capture edge and generator (D31)</td></tr>
+<tr><td>P2-2</td><td>Generator: Si5351 CLK2 → 50 Ω series R → 5th-order LC low-pass, f<sub>c</sub> ≈ 30 MHz, doubly terminated 50 Ω → ≈ 2 V<sub>pp</sub> sine (to verify on the bench). Clean sine from ≈ 10 to 30 MHz; below f<sub>c</sub>/3 harmonics pass (shaped square, fine for throughput). ADC driven single-ended, VIN− = VCOM, IRS = VDDA (2 V<sub>pp</sub>)</td><td>Simplest path from a square clock to a clean sine: ~5 L/C + 2 R, no op-amp, no differential driver (D05, D22)</td></tr>
+<tr><td>P2-3</td><td>1×4 2.54 mm header GEN | ADC_IN | EXT | GND: jumper 1–2 = generator, 2–3 = external. AC-coupling cap + VCOM bias resistor after the jumper (ADC side). EXT: 49.9 Ω termination, series R + clamp diodes. GEN + GND double as the D20 probe point (supersedes D20)</td><td>Implements D30 with one header and a shunt; both sources AC-coupled and back-feed safe</td></tr>
+<tr><td>P2-4</td><td>CH32 ADC/HSADC stimulus: RP2350 PWM → 2nd-order RC → PC0 (ADC_IN10 + HSADC_IN0); sine synthesised in RP firmware (tens of kHz)</td><td>2 R + 2 C and one GPIO; replaces the DDS feed of D07 (R8)</td></tr>
+<tr><td>P2-5</td><td>Lost-sample detection without counter injection: TIM1_ETR counts PCLK vs samples received, and the host checks phase continuity of the known Si5351 sine</td><td>No parts; replaces D16 exact counter</td></tr>
+<tr><td>P2-6</td><td>DVP HSYNC/VSYNC from a CH32 timer clocked by PCLK on ETR, looped by trace to PA4/PA5 (to verify DVP accepts it)</td><td>No RP pins, line length exact to the sample, works standalone (D15)</td></tr>
+<tr><td>P2-7</td><td>VDD33A/VREFP from the CH32 3V3 via ferrite + caps (no LDO)</td><td>D22; HSADC needs VDD33A ≥ 3.0 V only</td></tr>
+<tr><td>P2-8</td><td>Power inputs: drop the external 5 V input → 3 × LM66100 (J1, J2, J3 VBUS)</td><td>One input and one ideal diode less</td></tr>
+<tr><td>P2-9</td><td>Keep J2 (CH32 USBFS USB-C) or drop it (UART ISP via RP2350 covers ISP)</td><td>Dropping saves a connector + an LM66100; loses USBFS tests</td></tr>
 </tbody></table></div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>

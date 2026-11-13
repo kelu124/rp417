@@ -12,4 +12,5 @@
 | 2026-11-12 | 76a563c | docs/design/block-diagram.html: mermaid block/power/capture diagrams, CH32 + RP2354B + interconnect pin plans, proposals P1-1..P1-10 |
 | 2026-11-12 | 02e7f84 | D21: DVP-only capture, UHSIF parked |
 | 2026-11-12 | f9fafca | SessionStart hook listing unanswered decision points (TODO open questions + untagged P-proposals) |
-| 2026-11-13 | (this commit) | D22: simplicity / minimal-BOM design constraint (SPEC §0) |
+| 2026-11-13 | cf87f8d | D22: simplicity / minimal-BOM design constraint (SPEC §0) |
+| 2026-11-13 | (this commit) | D23–D31 (P1 review under D22: simplified power, single-orientation USB3, no INA/bus switches/2:1 switch/AD9851, ADC10065 jumper input); P2-1..P2-9 proposals; hook accepts `tag w` (withdrawn) |

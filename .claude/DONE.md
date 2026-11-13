@@ -14,3 +14,4 @@
 - 2026-11-12 — Block diagrams (system, power, capture) + CH32/RP2350/interconnect pin plans: docs/design/block-diagram.html (P1)
 - 2026-11-12 — Decided DVP-only capture, UHSIF parked (D21)
 - 2026-11-12 — SessionStart hook that surfaces unanswered decision points (.claude/hooks/pending-decisions.py)
+- 2026-11-13 — Reviewed P1 under D22: D23–D31 logged; USB switch chosen (TS3USB221A, D26); back-feed method settled (D29); capture switch + RP counter pattern dropped (D30); AD9851 dropped (D31)

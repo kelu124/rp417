@@ -30,7 +30,7 @@ row_re = re.compile(r"<tr><td>(P\d+-\d+)(.*?)</td><td>(.*?)</td>", re.S)
 for path in sorted(glob.glob(os.path.join(root, "docs", "design", "*.html"))):
     text = open(path, encoding="utf-8").read()
     for pid, tag, desc in row_re.findall(text):
-        if 'tag d' in tag:  # already approved -> Dxx
+        if 'tag d' in tag or 'tag w' in tag:  # approved (Dxx) or withdrawn
             continue
         desc = html.unescape(re.sub(r"<[^>]+>", "", desc)).strip()
         proposals.append(f"{pid}: {desc} ({os.path.relpath(path, root)})")

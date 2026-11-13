@@ -33,4 +33,5 @@ CH32H417 for automated limit testing (USB3, parallel ADC capture, internal ADCs,
   unchecked item under `## Open questions (user)` in `.claude/TODO.md` and every proposal row
   (`<tr><td>Pn-m</td>…`) in `docs/design/*.html` not yet tagged `<span class="tag d">Dxx</span>`.
   When it reports pending points, ask the user about them first. Keep those two formats so the hook
-  keeps finding them: tick/remove answered questions, tag approved proposals with their Dxx.
+  keeps finding them: tick/remove answered questions, tag approved proposals with their Dxx
+  (withdrawn ones with `<span class="tag w">→ Pn-m</span>`).
