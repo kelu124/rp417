@@ -186,7 +186,7 @@ Decided 2026-11-12:
   0.19 mm gap, + exposed pad). Fan-out leaves each pad outward, so ~0.1–0.127 mm traces suffice (no routing between pads);
   check JLC 6-layer pad/solder-mask-dam rules and the stencil for 0.19 mm gaps. Reuse WCH's footprint.
 - **Sourcing snapshot 2026-11-13** (JLC parts API, §8 of the design page): **CH32H417QEU6 = 0 stock at JLC** (C49363240) →
-  **user-sourced** (D43; consign vs hand-solder to confirm). Thin stock: RP2354B (524), RP2350 SMPS inductor AOTA-B201610S3R3 (143). ADC10065 is DNP (D42; LCSC has 4 + 30).
+  **user-sourced** (D43), **consigned to JLC for assembly** (D58). Thin stock: RP2354B (524), RP2350 SMPS inductor AOTA-B201610S3R3 (143). ADC10065 is DNP (D42; LCSC has 4 + 30).
   Almost every IC/connector is an Extended part. Part selection = design page §8 (D47); genuine Si5351A-B-GTR (D46).
 
 ## 10. Open questions

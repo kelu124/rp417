@@ -1,7 +1,6 @@
 # TODO
 
 ## Open questions (user)
-- [ ] CH32H417QEU6 (user-sourced, D43): consign to JLC or hand-solder?
 
 ## Datasheets
 - [ ] Get QingKe V5/V3 processor manuals (debug module details for RP-side SDI)

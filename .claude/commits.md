@@ -24,4 +24,5 @@
 | 2026-11-13 | (see git log) | Board generator (placement with D53 perpendicular-passive rule, zones, DSN), finish/DRC script, project rules, hw/README, D49–D53 |
 | 2026-11-13 | (see git log) | D54 CH32H417MEU6 (QFN88), D55 2:1 capture switch back, D56 QFN88 pin moves; schematic + placement regenerated; SPEC/design page updated |
 | 2026-11-13 | (see git log) | SN74CBTLV3257 datasheet + 65 MHz check in SPEC; proposal P4-1 (capture series R) |
-| 2026-11-13 | (this commit) | D57: capture series R 0/22 Ω, switch channels grouped by CH32 edge, switches moved next to DVP pins |
+| 2026-11-13 | 5390dad | D57: capture series R 0/22 Ω, switch channels grouped by CH32 edge, switches moved next to DVP pins |
+| 2026-11-13 | (this commit) | D58: U1 consigned to JLC; open question closed |
