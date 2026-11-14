@@ -202,6 +202,7 @@ ch = {
     "PD12": "LOGIC0", "PD13": "LOGIC1", "PD14": "LOGIC2", "PD15": "LOGIC3", "PD10": "LOGIC4", "PD11": "LOGIC5",
     "PC6": "LOGIC6", "PC7": "LOGIC7",
     "PC0": "CH_AIN0",
+    "PC1": "CH_AIN1",                  # D65 HSADC_IN1 / ADC_IN11, on J6 via 100R
     "PC3": "CH_AIN3",                  # D64 HSADC_IN3 / ADC_IN13, on J6 via 100R
     "PC2": "LED_CH_R", "PF0": "LED_CH_G", "PF1": "LED_CH_B",   # D62/D63 status LED (pins 17, 45, 46)
     # microSD (D04), SDMMC_RM=00
@@ -405,12 +406,13 @@ R("1k", "LED_CH_G", "LED_CH_GK")
 R("330", "LED_CH_B", "LED_CH_BK")                  # D63, appended last -> R91
 
 # ---------------------------------------------------------------- D64 HSADC test header
-# J6 2x2 2.54 mm: 1 CH_AIN0 (PC0) | 2 GND / 3 PC3 (HSADC_IN3, via 100R) | 4 GEN_OUT.
-# Jumper 1-3 = same stimulus on HSADC_IN0 + IN3; jumper 3-4 = raw generator into PC3.
+# J6 2x2 2.54 mm: 1 PC1 (HSADC_IN1, via 100R, D65) | 2 GND / 3 PC3 (HSADC_IN3, via 100R) | 4 GEN_OUT.
+# Jumper 1-3 = HSADC_IN1 + IN3 tied; jumper 3-4 = raw generator into PC3; 1-2 = IN1 grounded.
 cur = sheets["analog"]
 ic("J6", "HDR2X2", "2x02 AIN0/GND/AIN3/GEN", "Connector_PinHeader_2.54mm:PinHeader_2x02_P2.54mm_Vertical",
-   by_num={"1": "CH_AIN0", "2": "GND", "3": "AIN3_HDR", "4": "GEN_OUT"})
+   by_num={"1": "AIN1_HDR", "2": "GND", "3": "AIN3_HDR", "4": "GEN_OUT"})
 R("100", "AIN3_HDR", "CH_AIN3")                   # limits back-feed into PC3 with the CH32 off (D29) -> R92
+R("100", "AIN1_HDR", "CH_AIN1")                   # D65, same for PC1 -> R93
 
 # ---------------------------------------------------------------- write + checks
 order = ["power", "usb", "ch32", "rp", "analog", "links"]
