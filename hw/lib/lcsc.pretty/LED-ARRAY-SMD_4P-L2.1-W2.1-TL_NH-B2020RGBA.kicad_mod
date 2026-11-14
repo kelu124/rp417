@@ -26,7 +26,7 @@
 	(fp_line (start 1.05 -1.05) (end 1.05 1.05) (layer F.CrtYd) (width 0.05))
 	(fp_line (start 1.05 1.05) (end -1.05 1.05) (layer F.CrtYd) (width 0.05))
 	(fp_poly (pts (xy -0.389992 -0.667512) (xy -0.389966 -0.992480) (xy -0.389966 -0.992480) (xy -0.049962 -0.992480) (xy -0.389992 -0.667512)) (stroke (width 0) (type solid)) (fill solid) (layer "F.SilkS"))
-	(model "/tmp/claude-1000/-home-kelu-projets-rp417/7f6c8a2e-7a82-4049-9d59-badd04219c0f/scratchpad/led/lcsc.3dshapes/LED-ARRAY-SMD_4P-L2.1-W2.1-TL_NH-B2020RGBA.wrl"
+	(model "${KIPRJMOD}/lib/lcsc.3dshapes/LED-ARRAY-SMD_4P-L2.1-W2.1-TL_NH-B2020RGBA.wrl"
 		(offset (xyz 0.000 0.000 0.000))
 		(scale (xyz 1 1 1))
 		(rotate (xyz 0 0 0))

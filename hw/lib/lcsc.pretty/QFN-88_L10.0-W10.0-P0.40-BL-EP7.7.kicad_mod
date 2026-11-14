@@ -114,7 +114,7 @@
 	(fp_line (start -5.00 -5.00) (end 5.00 -5.00) (layer F.CrtYd) (width 0.05))
 	(fp_line (start 5.00 -5.00) (end 5.00 5.00) (layer F.CrtYd) (width 0.05))
 	(fp_line (start 5.00 5.00) (end -5.00 5.00) (layer F.CrtYd) (width 0.05))
-	(model "/home/kelu/projets/rp417/hw/lib/lcsc.3dshapes/QFN-88_L10.0-W10.0-P0.40-BL-EP7.7.wrl"
+	(model "${KIPRJMOD}/lib/lcsc.3dshapes/QFN-88_L10.0-W10.0-P0.40-BL-EP7.7.wrl"
 		(offset (xyz 0.000 0.000 0.000))
 		(scale (xyz 1 1 1))
 		(rotate (xyz 0 0 270))

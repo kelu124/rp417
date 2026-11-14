@@ -9,6 +9,8 @@ Everything here is **generated**. Edit the generators in `gen/`, not the KiCad f
 | `gen/pcb.py` | Netlist → footprints → placement (fixed anchors in `FIX`; passives anchored to their IC pin, **perpendicular to the IC edge, IC-side pad facing the pin** (D53), decoupling one per power pin on B.Cu) → zones → `build/rp417.dsn`. |
 | `gen/finish.py` | Imports the freerouting session, fills zones, writes `rp417.kicad_pcb`, runs DRC. Since D61 the board is hand-routed: if `rp417.kicad_pcb` has edits, it writes `build/rp417_autorouted.kicad_pcb` instead (`--force` to overwrite). |
 | `lib/lcsc.*` | Symbols/footprints imported from LCSC with easyeda2kicad (pins re-typed to passive). |
+| `lib/lcsc.3dshapes/` | 3D models from LCSC (easyeda2kicad `--3d`). Only the `.wrl` files are committed (5 MB, used by the 3D viewer and renders); the `.step` files (32 MB, needed for STEP export) are gitignored — refetch with `.venv/bin/easyeda2kicad --lcsc_id <C…> --3d --output hw/lib/lcsc`. Models are referenced as `${KIPRJMOD}/lib/lcsc.3dshapes/…`. |
+| `renders/` | 3D views (top, bottom, angled) from `kicad-cli pcb render`. |
 | `rp417.kicad_pro` | Design rules + net classes (Default 0.1/0.1 mm, via 0.4/0.2; Power 0.4 mm). |
 
 ## Rebuild

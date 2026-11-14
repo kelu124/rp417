@@ -8,3 +8,4 @@ hw/*-backups/
 hw/fp-info-cache
 hw/build/
 .venv/
+hw/lib/lcsc.3dshapes/*.step
