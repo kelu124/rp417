@@ -3,6 +3,7 @@
 ## Open questions (user)
 
 ## Datasheets
+- [ ] Add RP2350 datasheet (verify I2C GPIO mapping used in D66)
 - [ ] Get QingKe V5/V3 processor manuals (debug module details for RP-side SDI)
 
 ## Design

@@ -37,7 +37,7 @@ S = {k: Sym(*v) for k, v in {
     "USBC24": ("lcsc", "TYPE-C24PQT"), "USBC16": ("lcsc", "TYPE-C16PIN2MD"), "TF": ("lcsc", "TF-01A"),
     "LM66100": ("Power_Management", "LM66100DCK", {"6": "passive"}), "TLV": ("Regulator_Switching", "TLV62568DBV"),
     "USBLC6": ("Power_Protection", "USBLC6-2P6"), "BAT54S": ("Diode", "BAT54S"),
-    "JP3": ("Jumper", "SolderJumper_3_Bridged12"), "HDR2X2": ("Connector_Generic", "Conn_02x02_Odd_Even"), "HDR4": ("Connector_Generic", "Conn_01x04"),
+    "JP3": ("Jumper", "SolderJumper_3_Bridged12"), "HDR2X2": ("Connector_Generic", "Conn_02x02_Odd_Even"), "HDR2X3": ("Connector_Generic", "Conn_02x03_Odd_Even"), "HDR4": ("Connector_Generic", "Conn_01x04"),
     "ADC": ("rp417", "ADC10065"),
 }.items()}
 
@@ -262,7 +262,8 @@ rp = {
     "GPIO31": "HSYNC_RP", "GPIO32": "VSYNC_RP", "GPIO33": "MARK_RP", "GPIO34": "MCO_RP",
     "GPIO35": "SWIO_RP", "GPIO36": "SWCLK_RP", "GPIO37": "CH_NRST_RP", "GPIO38": "CH_PWR_EN",
     "GPIO39": "USB_SEL", "GPIO40_ADC0": "ADC_V3V3CH", "GPIO41_ADC1": "ADC_VSYS",
-    "GPIO45_ADC5": "LED_RP_R", "GPIO46_ADC6": "LED_RP_G", "GPIO47_ADC7": "LED_RP_B",   # D62 status RGB
+    "GPIO43_ADC3": "LED_RP_R", "GPIO46_ADC6": "LED_RP_G", "GPIO47_ADC7": "LED_RP_B",   # D62 status RGB (R moved to GPIO43, D66)
+    "GPIO44_ADC4": "SAO_SDA", "GPIO45_ADC5": "SAO_SCL",                                 # D66 I2C0 on the SAO header
 }
 ic("U2", "RP", "RP2354B", "lcsc:QFN-80_L10.0-W10.0-P0.40-TL-EP3.4", by_name=rp, rest=None, lcsc="C39843328")
 for _ in range(8): C("100n", "+3V3")             # IOVDD x8
@@ -413,6 +414,16 @@ ic("J6", "HDR2X2", "2x02 AIN0/GND/AIN3/GEN", "Connector_PinHeader_2.54mm:PinHead
    by_num={"1": "AIN1_HDR", "2": "GND", "3": "AIN3_HDR", "4": "GEN_OUT"})
 R("100", "AIN3_HDR", "CH_AIN3")                   # limits back-feed into PC3 with the CH32 off (D29) -> R92
 R("100", "AIN1_HDR", "CH_AIN1")                   # D65, same for PC1 -> R93
+
+# ---------------------------------------------------------------- D66 SAO header (I2C0)
+# "Shitty Add-On" v1.69bis 2x3 2.54 mm: 1 VCC | 2 GND / 3 SDA | 4 SCL / 5 GPIO1 | 6 GPIO2.
+# RP2350 I2C0 = GPIO44 SDA / GPIO45 SCL. VCC = +3V3 (always-on RP rail, pull-ups on the same rail).
+# GPIO1/GPIO2 not connected: no free RP GPIO left (SWD and QSPI pins excluded).
+cur = sheets["rp"]
+ic("J7", "HDR2X3", "SAO 2x03 VCC/GND/SDA/SCL", "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical",
+   by_num={"1": "+3V3", "2": "GND", "3": "SAO_SDA", "4": "SAO_SCL", "5": None, "6": None})
+R("4.7k", "+3V3", "SAO_SDA")                      # -> R94
+R("4.7k", "+3V3", "SAO_SCL")                      # -> R95
 
 # ---------------------------------------------------------------- write + checks
 order = ["power", "usb", "ch32", "rp", "analog", "links"]

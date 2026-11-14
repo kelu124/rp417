@@ -33,4 +33,5 @@
 | 2026-11-14 | c730c2c | Hand-routing checkpoint (+3V3 plane restored) + D62 status RGB LEDs D6/D7 (schematic, lib part, datasheet, placed on board); .venv gitignored |
 | 2026-11-14 | ea4dd07 | D63: D7 blue on CH32 PF1 via R91 (330 Ω); hand-routing checkpoint |
 | 2026-11-14 | 6cba252 | D64: J6 2×2 HSADC test header (PC0, PC3 via R92, GND, GEN_OUT); hand-routing checkpoint |
-| 2026-11-14 | (this commit) | D65: J6 pin 1 = PC1 via R93 instead of CH_AIN0 (user's J6.1 branch re-netted); hand-routing checkpoint |
+| 2026-11-14 | bc9c2c3 | D65: J6 pin 1 = PC1 via R93 instead of CH_AIN0 (user's J6.1 branch re-netted); hand-routing checkpoint |
+| 2026-11-14 | (this commit) | D66: SAO header J7 on RP I2C0 (GPIO44/45) + pull-ups; D6 red to GPIO43; hand-routing checkpoint |
