@@ -191,6 +191,7 @@ Decided 2026-11-12:
 - **Plane fan-out (D60):** dogbone via (0.4/0.2 mm, 0.25 mm stub) on every SMD pad of GND / +3V3 / +3V3_CH,
   generated before routing; via grid inside the U1/U2 exposed pads (unfilled vias in an EP can wick solder; check
   JLC's stencil/EP recommendation before fab). Pads over the wrong half of the In3 split (U9 out, C10, C75, R4, U4.10, C16) are routed.
+- **Routing (D61):** finished by hand in KiCad on `hw/rp417.kicad_pcb`; the generators no longer overwrite it.
 - **DRC waiver (D59):** `hole_clearance` and `annular_width` errors whose items all sit inside the J1–J3 USB connector
   footprints (LCSC library geometry: GND shell/pin pads vs the footprint's own NPTH pegs; J1 shell pad 25 ring) are waived in
   `hw/gen/finish.py` (21 on the D57 placement). Re-check against the connector drawings before fab.

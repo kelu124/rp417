@@ -386,7 +386,9 @@ PLANE_REGION = {"GND": lambda y: True,
                 "+3V3_CH": lambda y: y < 43.5,          # In3 +3V3_CH: y 0.3..44
                 "+3V3": lambda y: y > 45.5}             # In3 +3V3:    y 45..H
 VIA_D, VIA_DR, STUB_W, GAP = 0.4, 0.2, 0.25, 0.15
-EP_MIN_MM2, EP_PITCH = 4.0, 1.1
+EP_MIN_MM2 = 4.0
+QFN = ("U1", "U2")          # D60 rev: their power pins reach the plane through their decoupling cap
+NEAR_QFN = 9.0              # mm: parts this close to a QFN put the via on the far side from the chip
 
 
 def xy_mm(p):
@@ -434,9 +436,12 @@ def add_stub(net, layer, a, b):
     board.Add(t)
 
 
-fan = {"dogbone": 0, "ep_vias": 0, "wrong_half": [], "no_room": []}
+fan = {"dogbone": 0, "ep_vias": 0, "wrong_half": [], "no_room": [], "qfn_pin_via_cap": 0}
+qfn_c = {r: xy_mm(fps[r].GetPosition()) for r in QFN if r in fps}
 for fp in fps.values():
     cx, cy = xy_mm(fp.GetPosition())
+    ref = fp.GetReference()
+    near = [c for r, c in qfn_c.items() if r != ref and math.hypot(cx - c[0], cy - c[1]) < NEAR_QFN]
     for pd in fp.Pads():
         net = pd.GetNetname()
         if net not in PLANE_REGION or pd.GetAttribute() != pcbnew.PAD_ATTRIB_SMD:
@@ -450,15 +455,23 @@ for fp in fps.values():
         bb = pd.GetBoundingBox()
         x0, y0 = xy_mm(bb.GetOrigin()); x1, y1 = xy_mm(bb.GetEnd())
         if (x1 - x0) * (y1 - y0) >= EP_MIN_MM2:            # exposed pad: via grid inside it
-            nx = max(1, int((x1 - x0 - 0.6) / EP_PITCH) + 1); ny = max(1, int((y1 - y0 - 0.6) / EP_PITCH) + 1)
+            # D60 rev: 4 x 4 on large pads (U1 7.7 mm), 3 x 3 on small ones (U2 3.4 mm)
+            nx = 4 if x1 - x0 > 5 else 3; ny = 4 if y1 - y0 > 5 else 3
+            ptx = min(2.0, (x1 - x0 - 1.4) / (nx - 1)); pty = min(2.0, (y1 - y0 - 1.4) / (ny - 1))
             for i in range(nx):
                 for j in range(ny):
-                    vx = (x0 + x1) / 2 + (i - (nx - 1) / 2) * EP_PITCH
-                    vy = (y0 + y1) / 2 + (j - (ny - 1) / 2) * EP_PITCH
+                    vx = (x0 + x1) / 2 + (i - (nx - 1) / 2) * ptx
+                    vy = (y0 + y1) / 2 + (j - (ny - 1) / 2) * pty
                     if clear(net, vx, vy, VIA_D / 2, True, True, True):
                         add_via(net, vx, vy); fan["ep_vias"] += 1
             continue
-        ux, uy = px - cx, py - cy
+        if ref in QFN:
+            fan["qfn_pin_via_cap"] += 1; continue
+        if near:                                           # away from the nearest QFN, not the part centre
+            qx, qy = min(near, key=lambda c: math.hypot(px - c[0], py - c[1]))
+            ux, uy = px - qx, py - qy
+        else:
+            ux, uy = px - cx, py - cy
         n = math.hypot(ux, uy)
         ux, uy = (ux / n, uy / n) if n > 1e-3 else (1.0, 0.0)
         dirs = [(ux, uy), (-uy, ux), (uy, -ux), (-ux, -uy)]
@@ -467,7 +480,7 @@ for fp in fps.values():
         done = False
         for dx, dy in dirs:
             half = abs(dx) * (x1 - x0) / 2 + abs(dy) * (y1 - y0) / 2
-            for extra in (0.0, 0.2, 0.4, 0.7):
+            for extra in (0.0, 0.2, 0.4, 0.7, 1.0):
                 d = half + VIA_D / 2 + GAP + extra
                 vx, vy = px + dx * d, py + dy * d
                 if not clear(net, vx, vy, VIA_D / 2, True, True, True):
@@ -483,7 +496,7 @@ for fp in fps.values():
                 break
         if not done:
             fan["no_room"].append(tag)
-print(f"fan-out: {fan['dogbone']} dogbones, {fan['ep_vias']} EP vias, "
+print(f"fan-out: {fan['dogbone']} dogbones, {fan['ep_vias']} EP vias, {fan['qfn_pin_via_cap']} QFN pins via cap, "
       f"wrong half {fan['wrong_half']}, no room {len(fan['no_room'])}: {fan['no_room']}")
 
 out = os.path.join(BUILD, "rp417_placed.kicad_pcb")

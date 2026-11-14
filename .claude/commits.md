@@ -28,4 +28,5 @@
 | 2026-11-13 | 2c127af | D58: U1 consigned to JLC; open question closed |
 | 2026-11-13 | 635fcc2 | D59: waive J1–J3 footprint DRC errors in finish.py |
 | 2026-11-14 | aadc012 | First routed draft (freerouting 20 min: 2 signal nets + ~58 power-to-plane connections unrouted); README: capped router command, job_timeout instead of ignored -mp |
-| 2026-11-14 | (this commit) | D60: dogbone plane fan-out + EP via grids in pcb.py; reroute: 26 connections open (was 60), 16 of them signals |
+| 2026-11-14 | d195bd7 | D60: dogbone plane fan-out + EP via grids in pcb.py; reroute: 26 connections open (was 60), 16 of them signals |
+| 2026-11-14 | (this commit) | D60 rev (fewer EP vias, QFN pins via cap) + D61: hand routing from here, finish.py protects the board |

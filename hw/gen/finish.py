@@ -17,7 +17,19 @@ if os.path.exists(ses):
 filler = pcbnew.ZONE_FILLER(board)
 filler.Fill(board.Zones())
 out = os.path.join(HW, "rp417.kicad_pcb")
+# D61: hw/rp417.kicad_pcb is now hand-routed in KiCad. Never overwrite it unless it is still byte-identical
+# to what this script last wrote (hash in build/), or --force is given.
+import hashlib, sys
+stamp = os.path.join(B, "finish.sha256")
+def sha(p):
+    return hashlib.sha256(open(p, "rb").read()).hexdigest()
+if os.path.exists(out) and "--force" not in sys.argv:
+    if not os.path.exists(stamp) or open(stamp).read().strip() != sha(out):
+        out = os.path.join(B, "rp417_autorouted.kicad_pcb")
+        print(f"hw/rp417.kicad_pcb has manual edits -> writing {out} instead (use --force to overwrite)")
 board.Save(out)
+if out.endswith(os.path.join("hw", "rp417.kicad_pcb")):
+    open(stamp, "w").write(sha(out))
 
 tracks = [t for t in board.GetTracks() if t.GetClass() == "PCB_TRACK"]
 vias = [t for t in board.GetTracks() if t.GetClass() == "PCB_VIA"]
