@@ -18,13 +18,20 @@ Everything here is **generated**. Edit the generators in `gen/`, not the KiCad f
 (cd hw && kicad-cli sch erc rp417.kicad_sch)          # expect 0 violations
 /usr/bin/python3 hw/gen/pcb.py                        # placement + DSN (needs system python with pcbnew)
 cd hw/build && FREEROUTING__USAGE_AND_DIAGNOSTIC_DATA__DISABLE_ANALYTICS=true \
-  java -Djava.awt.headless=true -jar ~/.local/share/freerouting/freerouting-2.1.0.jar \
+  systemd-run --user --scope -q -p MemoryMax=4G -p MemorySwapMax=0 nice -n 19 \
+  java -Xmx3g -Djava.awt.headless=true -jar ~/.local/share/freerouting/freerouting-2.1.0.jar \
   --gui.enabled=false --usage_and_diagnostic_data.disable_analytics=true \
-  -de rp417.dsn -do rp417.ses -mp 30
+  --router.job_timeout=00:20:00 -de rp417.dsn -do rp417.ses
 cd ../.. && /usr/bin/python3 hw/gen/finish.py         # import, fill, DRC
 ```
 
 Freerouting 2.x ships Segment analytics — keep both "disable analytics" switches above.
+
+**Stopping the router (freerouting 2.1.0):** `-mp` / `--router.max_passes` are *ignored* headless (they set
+`maxPasses`, but the batch loop checks `stop_pass_no`, which only the GUI fills in), so the router runs until
+its job timeout (default 24 h) and writes the `.ses` only at the end — an external `timeout` kill loses
+everything. Use `--router.job_timeout` (it stops cleanly and saves). The D57 board plateaus after ~15–20 min
+(2026-11-14: 20 min → 45 passes, 60 unrouted). Keep the memory cap: the box has 31 GB shared with other sessions.
 
 ## Stack-up (6 layers, D18)
 
