@@ -202,7 +202,7 @@ ch = {
     "PD12": "LOGIC0", "PD13": "LOGIC1", "PD14": "LOGIC2", "PD15": "LOGIC3", "PD10": "LOGIC4", "PD11": "LOGIC5",
     "PC6": "LOGIC6", "PC7": "LOGIC7",
     "PC0": "CH_AIN0",
-    "PC2": "LED_CH_R", "PF0": "LED_CH_G",    # D62 status LED (pin 17, pin 45)
+    "PC2": "LED_CH_R", "PF0": "LED_CH_G", "PF1": "LED_CH_B",   # D62/D63 status LED (pins 17, 45, 46)
     # microSD (D04), SDMMC_RM=00
     "PD2": "SD_CMD", "PC12": "SD_CLK", "PC8": "SD_D0", "PC9": "SD_D1", "PC10": "SD_D2", "PC11": "SD_D3",
     "PD0": "SD_CD",
@@ -397,10 +397,11 @@ R("1k", "LED_RP_R", "LED_RP_RK")
 R("1k", "LED_RP_G", "LED_RP_GK")
 R("330", "LED_RP_B", "LED_RP_BK")
 cur = sheets["ch32"]
-ic("D7", "RGB", "NH-B2020RGBA-HF", LED_FP, by_num={"3": "+3V3_CH", "1": "LED_CH_RK", "4": "LED_CH_GK", "2": None},
-   lcsc="C2874116")                                 # blue not used (2 CH32 GPIOs)
+ic("D7", "RGB", "NH-B2020RGBA-HF", LED_FP, by_num={"3": "+3V3_CH", "1": "LED_CH_RK", "4": "LED_CH_GK", "2": "LED_CH_BK"},
+   lcsc="C2874116")                                 # blue on PF1 (D63)
 R("1k", "LED_CH_R", "LED_CH_RK")
 R("1k", "LED_CH_G", "LED_CH_GK")
+R("330", "LED_CH_B", "LED_CH_BK")                  # D63, appended last -> R91
 
 # ---------------------------------------------------------------- write + checks
 order = ["power", "usb", "ch32", "rp", "analog", "links"]

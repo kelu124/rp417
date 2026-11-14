@@ -192,7 +192,7 @@ Decided 2026-11-12:
   generated before routing; via grid inside the U1/U2 exposed pads (unfilled vias in an EP can wick solder; check
   JLC's stencil/EP recommendation before fab). Pads over the wrong half of the In3 split (U9 out, C10, C75, R4, U4.10, C16) are routed.
 - **Status LEDs (D62):** D6 RGB on RP GPIO45/46/47 (anode +3V3, 1k/1k/330 Ω) at the bottom edge by BOOTSEL; D7 RGB on CH32
-  PC2 (R) + PF0 (G) (anode +3V3_CH, 1k, blue unused) at the right edge. NH-B2020RGBA-HF, common anode, pinout per
+  PC2 (R) + PF0 (G) + PF1 (B, D63) (anode +3V3_CH, 1k/1k/330 Ω), placed by hand near (20, 38) mm. NH-B2020RGBA-HF, common anode, pinout per
   `datasheets/NH-B2020RGBA-HF.pdf` p.2. Blue at 3.3 V − 330 Ω: VF up to 3.2 V (DS) → may be dim on a high-VF part (to check on the bench).
 - **Routing (D61):** finished by hand in KiCad on `hw/rp417.kicad_pcb`; the generators no longer overwrite it.
 - **DRC waiver (D59):** `hole_clearance` and `annular_width` errors whose items all sit inside the J1–J3 USB connector

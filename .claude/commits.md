@@ -30,4 +30,5 @@
 | 2026-11-14 | aadc012 | First routed draft (freerouting 20 min: 2 signal nets + ~58 power-to-plane connections unrouted); README: capped router command, job_timeout instead of ignored -mp |
 | 2026-11-14 | d195bd7 | D60: dogbone plane fan-out + EP via grids in pcb.py; reroute: 26 connections open (was 60), 16 of them signals |
 | 2026-11-14 | 3303f43 | D60 rev (fewer EP vias, QFN pins via cap) + D61: hand routing from here, finish.py protects the board |
-| 2026-11-14 | (this commit) | Hand-routing checkpoint (+3V3 plane restored) + D62 status RGB LEDs D6/D7 (schematic, lib part, datasheet, placed on board); .venv gitignored |
+| 2026-11-14 | c730c2c | Hand-routing checkpoint (+3V3 plane restored) + D62 status RGB LEDs D6/D7 (schematic, lib part, datasheet, placed on board); .venv gitignored |
+| 2026-11-14 | (this commit) | D63: D7 blue on CH32 PF1 via R91 (330 Ω); hand-routing checkpoint |
