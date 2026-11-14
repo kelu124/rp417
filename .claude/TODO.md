@@ -8,7 +8,6 @@
 
 ## Design
 - [ ] Verify pinouts taken from datasheets/LCSC: TPS22918, ADC10065 D0–D9 order, TF-01A CD pin 9, SN74CBTLV3257
-- [ ] Regenerate hw/production/ (BOM/CPL/Gerbers) after D68 — the committed files predate it
 - [ ] KiCad schematic rev A (from design page §1–§8), then placement + routing
 - [ ] Hardware: JPEG-mode continuous DVP capture with static HSYNC is gapless (D37; RM supports it)
 - [ ] Hardware: measure CH32 temperature at full USB3 load (D25; estimate +20–25 °C)
