@@ -400,8 +400,8 @@
     "legacy_lib_list": [],
     "top_level_sheets": [
       {
-        "filename": "rp417_placed.kicad_sch",
-        "name": "rp417_placed",
+        "filename": "rp417.kicad_sch",
+        "name": "rp417",
         "uuid": "00000000-0000-0000-0000-000000000000"
       }
     ]

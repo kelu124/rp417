@@ -191,6 +191,9 @@ Decided 2026-11-12:
 - **Plane fan-out (D60):** dogbone via (0.4/0.2 mm, 0.25 mm stub) on every SMD pad of GND / +3V3 / +3V3_CH,
   generated before routing; via grid inside the U1/U2 exposed pads (unfilled vias in an EP can wick solder; check
   JLC's stencil/EP recommendation before fab). Pads over the wrong half of the In3 split (U9 out, C10, C75, R4, U4.10, C16) are routed.
+- **Status LEDs (D62):** D6 RGB on RP GPIO45/46/47 (anode +3V3, 1k/1k/330 Ω) at the bottom edge by BOOTSEL; D7 RGB on CH32
+  PC2 (R) + PF0 (G) (anode +3V3_CH, 1k, blue unused) at the right edge. NH-B2020RGBA-HF, common anode, pinout per
+  `datasheets/NH-B2020RGBA-HF.pdf` p.2. Blue at 3.3 V − 330 Ω: VF up to 3.2 V (DS) → may be dim on a high-VF part (to check on the bench).
 - **Routing (D61):** finished by hand in KiCad on `hw/rp417.kicad_pcb`; the generators no longer overwrite it.
 - **DRC waiver (D59):** `hole_clearance` and `annular_width` errors whose items all sit inside the J1–J3 USB connector
   footprints (LCSC library geometry: GND shell/pin pads vs the footprint's own NPTH pegs; J1 shell pad 25 ring) are waived in

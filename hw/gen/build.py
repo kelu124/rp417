@@ -27,7 +27,7 @@ open(os.path.join(HW, "lib", "rp417.kicad_sym"), "w").write(lib)
 
 # ---------------------------------------------------------------- symbols
 S = {k: Sym(*v) for k, v in {
-    "CBT": ("lcsc", "SN74CBTLV3257PWR"),
+    "CBT": ("lcsc", "SN74CBTLV3257PWR"), "RGB": ("lcsc", "NH-B2020RGBA-HF"),
     "R": ("Device", "R"), "C": ("Device", "C"), "L": ("Device", "L"), "FB": ("Device", "FerriteBead_Small"),
     "PWR_FLAG": ("power", "PWR_FLAG"), "HOLE": ("Mechanical", "MountingHole"),
     "CH32": ("lcsc", "CH32H417MEU6_C54973456"), "RP": ("lcsc", "RP2354B_C39843328"),
@@ -202,6 +202,7 @@ ch = {
     "PD12": "LOGIC0", "PD13": "LOGIC1", "PD14": "LOGIC2", "PD15": "LOGIC3", "PD10": "LOGIC4", "PD11": "LOGIC5",
     "PC6": "LOGIC6", "PC7": "LOGIC7",
     "PC0": "CH_AIN0",
+    "PC2": "LED_CH_R", "PF0": "LED_CH_G",    # D62 status LED (pin 17, pin 45)
     # microSD (D04), SDMMC_RM=00
     "PD2": "SD_CMD", "PC12": "SD_CLK", "PC8": "SD_D0", "PC9": "SD_D1", "PC10": "SD_D2", "PC11": "SD_D3",
     "PD0": "SD_CD",
@@ -259,6 +260,7 @@ rp = {
     "GPIO31": "HSYNC_RP", "GPIO32": "VSYNC_RP", "GPIO33": "MARK_RP", "GPIO34": "MCO_RP",
     "GPIO35": "SWIO_RP", "GPIO36": "SWCLK_RP", "GPIO37": "CH_NRST_RP", "GPIO38": "CH_PWR_EN",
     "GPIO39": "USB_SEL", "GPIO40_ADC0": "ADC_V3V3CH", "GPIO41_ADC1": "ADC_VSYS",
+    "GPIO45_ADC5": "LED_RP_R", "GPIO46_ADC6": "LED_RP_G", "GPIO47_ADC7": "LED_RP_B",   # D62 status RGB
 }
 ic("U2", "RP", "RP2354B", "lcsc:QFN-80_L10.0-W10.0-P0.40-TL-EP3.4", by_name=rp, rest=None, lcsc="C39843328")
 for _ in range(8): C("100n", "+3V3")             # IOVDD x8
@@ -382,6 +384,23 @@ for a, b, v in links:
     R(v, a, b)
 R("4.7k", "+3V3_CH", "CH_SDA")                   # I2C pull-ups on the CH32 rail (D29)
 R("4.7k", "+3V3_CH", "CH_SCL")
+
+# ---------------------------------------------------------------- D62 status RGB LEDs
+# Appended last so no existing reference is renumbered (board is hand-routed, D61).
+# NH-B2020RGBA-HF common anode: 1 = R-, 2 = B-, 3 = + (anode), 4 = G- (datasheets/NH-B2020RGBA-HF.pdf p.2).
+# GPIO sinks; anode on the GPIO's own rail so an unpowered CH32 is never back-fed (D29).
+LED_FP = "lcsc:LED-ARRAY-SMD_4P-L2.1-W2.1-TL_NH-B2020RGBA"
+cur = sheets["rp"]
+ic("D6", "RGB", "NH-B2020RGBA-HF", LED_FP, by_num={"3": "+3V3", "1": "LED_RP_RK", "4": "LED_RP_GK", "2": "LED_RP_BK"},
+   lcsc="C2874116")
+R("1k", "LED_RP_R", "LED_RP_RK")
+R("1k", "LED_RP_G", "LED_RP_GK")
+R("330", "LED_RP_B", "LED_RP_BK")
+cur = sheets["ch32"]
+ic("D7", "RGB", "NH-B2020RGBA-HF", LED_FP, by_num={"3": "+3V3_CH", "1": "LED_CH_RK", "4": "LED_CH_GK", "2": None},
+   lcsc="C2874116")                                 # blue not used (2 CH32 GPIOs)
+R("1k", "LED_CH_R", "LED_CH_RK")
+R("1k", "LED_CH_G", "LED_CH_GK")
 
 # ---------------------------------------------------------------- write + checks
 order = ["power", "usb", "ch32", "rp", "analog", "links"]

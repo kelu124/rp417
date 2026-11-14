@@ -7,3 +7,4 @@ __pycache__/
 hw/*-backups/
 hw/fp-info-cache
 hw/build/
+.venv/
