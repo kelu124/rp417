@@ -157,6 +157,8 @@ Decided 2026-11-12:
   EXT: 49.9 Ω termination, series R + clamp diodes. GEN + GND = scope probe point (replaces D20).
 - **ADC10065 (D30, D42):** **DNP** — user hand-solders their own part. CH32-only, on the CH32 domain. ADC_IN → AC coupling + VCOM bias → VIN+, VIN− tied to VCOM,
   IRS on a 3-way solder jumper, default VDDA = 2.0 Vpp full scale (GND 1.5 / open 1.0 Vpp) (D44, `datasheets/ADC10065.md`). D0–D9 → 33 Ω → capture switch B1 → DVP (D55).
+- **HSADC test header J6 (D64):** 2×2 2.54 mm — 1 CH_AIN0 (PC0) · 2 GND · 3 PC3 (HSADC_IN3) via 100 Ω · 4 GEN_OUT.
+  On QFN88 only HSADC_IN0–3 (PC0–PC3) exist; IN4–6 (PF8–PF10) are QFN128-only (DS V1.9 pin table). PC1 still free.
 - **CH32 ADC + HSADC (D35):** ADC_IN → series R + AC cap + VDD33A/2 bias → PC0 (ADC_IN10 + HSADC_IN0). No anti-alias
   filter: 10–30 MHz sines alias at 5/20 MSPS (deterministic, fine for throughput).
 - **Counter pattern (D55, supersedes D36):** 2:1 capture switch, 3 × SN74CBTLV3257PWR on D0–D9 + PCLK, powered from

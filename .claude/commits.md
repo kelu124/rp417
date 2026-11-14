@@ -31,4 +31,5 @@
 | 2026-11-14 | d195bd7 | D60: dogbone plane fan-out + EP via grids in pcb.py; reroute: 26 connections open (was 60), 16 of them signals |
 | 2026-11-14 | 3303f43 | D60 rev (fewer EP vias, QFN pins via cap) + D61: hand routing from here, finish.py protects the board |
 | 2026-11-14 | c730c2c | Hand-routing checkpoint (+3V3 plane restored) + D62 status RGB LEDs D6/D7 (schematic, lib part, datasheet, placed on board); .venv gitignored |
-| 2026-11-14 | (this commit) | D63: D7 blue on CH32 PF1 via R91 (330 Ω); hand-routing checkpoint |
+| 2026-11-14 | ea4dd07 | D63: D7 blue on CH32 PF1 via R91 (330 Ω); hand-routing checkpoint |
+| 2026-11-14 | (this commit) | D64: J6 2×2 HSADC test header (PC0, PC3 via R92, GND, GEN_OUT); hand-routing checkpoint |

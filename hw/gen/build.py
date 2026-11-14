@@ -37,7 +37,7 @@ S = {k: Sym(*v) for k, v in {
     "USBC24": ("lcsc", "TYPE-C24PQT"), "USBC16": ("lcsc", "TYPE-C16PIN2MD"), "TF": ("lcsc", "TF-01A"),
     "LM66100": ("Power_Management", "LM66100DCK", {"6": "passive"}), "TLV": ("Regulator_Switching", "TLV62568DBV"),
     "USBLC6": ("Power_Protection", "USBLC6-2P6"), "BAT54S": ("Diode", "BAT54S"),
-    "JP3": ("Jumper", "SolderJumper_3_Bridged12"), "HDR4": ("Connector_Generic", "Conn_01x04"),
+    "JP3": ("Jumper", "SolderJumper_3_Bridged12"), "HDR2X2": ("Connector_Generic", "Conn_02x02_Odd_Even"), "HDR4": ("Connector_Generic", "Conn_01x04"),
     "ADC": ("rp417", "ADC10065"),
 }.items()}
 
@@ -202,6 +202,7 @@ ch = {
     "PD12": "LOGIC0", "PD13": "LOGIC1", "PD14": "LOGIC2", "PD15": "LOGIC3", "PD10": "LOGIC4", "PD11": "LOGIC5",
     "PC6": "LOGIC6", "PC7": "LOGIC7",
     "PC0": "CH_AIN0",
+    "PC3": "CH_AIN3",                  # D64 HSADC_IN3 / ADC_IN13, on J6 via 100R
     "PC2": "LED_CH_R", "PF0": "LED_CH_G", "PF1": "LED_CH_B",   # D62/D63 status LED (pins 17, 45, 46)
     # microSD (D04), SDMMC_RM=00
     "PD2": "SD_CMD", "PC12": "SD_CLK", "PC8": "SD_D0", "PC9": "SD_D1", "PC10": "SD_D2", "PC11": "SD_D3",
@@ -402,6 +403,14 @@ ic("D7", "RGB", "NH-B2020RGBA-HF", LED_FP, by_num={"3": "+3V3_CH", "1": "LED_CH_
 R("1k", "LED_CH_R", "LED_CH_RK")
 R("1k", "LED_CH_G", "LED_CH_GK")
 R("330", "LED_CH_B", "LED_CH_BK")                  # D63, appended last -> R91
+
+# ---------------------------------------------------------------- D64 HSADC test header
+# J6 2x2 2.54 mm: 1 CH_AIN0 (PC0) | 2 GND / 3 PC3 (HSADC_IN3, via 100R) | 4 GEN_OUT.
+# Jumper 1-3 = same stimulus on HSADC_IN0 + IN3; jumper 3-4 = raw generator into PC3.
+cur = sheets["analog"]
+ic("J6", "HDR2X2", "2x02 AIN0/GND/AIN3/GEN", "Connector_PinHeader_2.54mm:PinHeader_2x02_P2.54mm_Vertical",
+   by_num={"1": "CH_AIN0", "2": "GND", "3": "AIN3_HDR", "4": "GEN_OUT"})
+R("100", "AIN3_HDR", "CH_AIN3")                   # limits back-feed into PC3 with the CH32 off (D29) -> R92
 
 # ---------------------------------------------------------------- write + checks
 order = ["power", "usb", "ch32", "rp", "analog", "links"]
