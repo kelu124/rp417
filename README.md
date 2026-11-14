@@ -64,7 +64,7 @@ fab + assembly. **Rev A is fully routed**; production files exist and the BOM is
 
 ## Gotchas worth knowing
 
-See `SPEC.md` §3 for the sources.
+See `.claude/SPEC.md` §3 for the sources.
 
 - **No BOOT0 pin.** The CH32 enters its bootloader by power-cycle: USB ISP on USBFS (DP high +
   DM low at power-on), or "key-free" UART ISP on **PA9/PA10** (QFN88). Controlling CH32 power is
@@ -86,14 +86,14 @@ See `SPEC.md` §3 for the sources.
 
 | Path | What |
 |---|---|
-| `SPEC.md` | Living specification — the main reference for the design. |
-| `DECISIONS.md` | Append-only log of every design decision (D01–…), with rationale and alternatives. |
+| `.claude/SPEC.md` | Living specification — the main reference for the design. |
+| `.claude/DECISIONS.md` | Append-only log of every design decision (D01–…), with rationale and alternatives. |
 | `hw/` | KiCad project (schematic sheets, `rp417.kicad_pcb`), generators in `hw/gen/`, LCSC library and 3D models in `hw/lib/`, renders in `hw/renders/`. See [`hw/README.md`](hw/README.md). |
 | `hw/production/` | Gerber zip (`rp417.zip`), BOM (`bom.csv`), placement (`positions.csv`), IPC netlist. |
 | `docs/design/` | Block diagrams, pin plans, BOM and area budget (`block-diagram.html`), plus proposal tables. |
 | `datasheets/` | Datasheets as PDF and their markdown translations (for grepping and citing). |
 | `projects/` | List of CH32H417 reference repos (hardware/sdk/firmware/tools) and `clone.sh`; the clones are gitignored. |
-| `userinputs/` | Raw notes — unverified until checked against datasheets. |
+| `.claude/userinputs/` | Raw notes — unverified until checked against datasheets. |
 
 ## Building / regenerating
 

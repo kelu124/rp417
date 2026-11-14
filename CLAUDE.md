@@ -5,13 +5,13 @@ CH32H417 for automated limit testing (USB3, parallel ADC capture, internal ADCs,
 
 ## Where things are
 
-- `SPEC.md` — the living specification. Update it whenever a design decision is made or changed.
-- `DECISIONS.md` — append-only log of **every** design decision (ID, date, decision, why,
+- `.claude/SPEC.md` — the living specification. Update it whenever a design decision is made or changed.
+- `.claude/DECISIONS.md` — append-only log of **every** design decision (ID, date, decision, why,
   alternatives, who decided, SPEC section). Changes = new entry that supersedes the old one.
 - `datasheets/` — PDFs and their markdown translations (`markitdown file.pdf > file.md`).
-  Grep the `.md` files; quote the source file when citing a fact in SPEC.md.
-- `userinputs/` — raw notes from the user. Treat claims there as **unverified** until checked
-  against datasheets; record the verdict in SPEC.md.
+  Grep the `.md` files; quote the source file when citing a fact in .claude/SPEC.md.
+- `.claude/userinputs/` — raw notes from the user. Treat claims there as **unverified** until checked
+  against datasheets; record the verdict in .claude/SPEC.md.
 - `projects/` — cloned CH32H417 reference repos (hardware/sdk/firmware/tools). List + rationale in
   `projects/README.md`; clones are gitignored, recreate with `projects/clone.sh`. Grep them for
   pinouts, USB3/UHSIF/DVP examples before designing a block.
@@ -21,13 +21,13 @@ CH32H417 for automated limit testing (USB3, parallel ADC capture, internal ADCs,
 
 ## Rules
 
-- **Log every design decision in `DECISIONS.md`** the moment it is made (user's or Claude's call),
-  and reflect it in SPEC.md in the same commit.
+- **Log every design decision in `.claude/DECISIONS.md`** the moment it is made (user's or Claude's call),
+  and reflect it in .claude/SPEC.md in the same commit.
 
 - Every commit gets an entry in `.claude/commits.md` (add it in the same commit; hash can be
   filled in by the following commit or left as "this commit").
-- Never state a chip capability in SPEC.md without a datasheet reference or a "to verify" flag.
-- Key gotchas (see SPEC.md §3): QFN128 package required for ISP; lot digit 5 must be ≠ 0;
+- Never state a chip capability in .claude/SPEC.md without a datasheet reference or a "to verify" flag.
+- Key gotchas (see .claude/SPEC.md §3): QFN128 package required for ISP; lot digit 5 must be ≠ 0;
   SWD pins PB8/PB9 are the USBHS pins; ISP entry is by power-cycle (no BOOT0 pin).
 - **Session start hook** (`.claude/settings.json` → `.claude/hooks/pending-decisions.py`) lists every
   unchecked item under `## Open questions (user)` in `.claude/TODO.md` and every proposal row

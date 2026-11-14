@@ -2,7 +2,7 @@
 
 Status: **rev A schematic + draft layout in `hw/`** (last update 2026-11-13)
 
-All decisions are logged in `DECISIONS.md` (Dxx IDs).
+All decisions are logged in `.claude/DECISIONS.md` (Dxx IDs).
 Block diagrams (mermaid), pin plans, BOM and area budget: `docs/design/block-diagram.html` (rev A, redrawn 2026-11-13
 for D22–D42; open points listed there as P3).
 
@@ -72,7 +72,7 @@ Source: `datasheets/CH32H417DS0_V1.9_en.md` (V1.9; was checked on V1.4 first), `
 - Timers are STM32-style (TIM1 ETR on PE7/PA12) → ADC clock can be counted by a timer.
 - VDDA/VREF: ≥3.0 V recommended when using HSADC.
 
-Claims from `userinputs/tocheck.md` — checked:
+Claims from `.claude/userinputs/tocheck.md` — checked:
 | Claim | Verdict |
 |-------|---------|
 | UHSIF 32-bit, 125 MHz, 500 MB/s | ✅ datasheet + UHSIF manual |

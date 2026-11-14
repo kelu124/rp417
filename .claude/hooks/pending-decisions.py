@@ -39,7 +39,7 @@ if not questions and not proposals:
     sys.exit(0)
 
 lines = ["rp417 has unanswered decision points. Before other work, ask the user about them "
-         "(one at a time or as a short list), then log each answer in DECISIONS.md + SPEC.md "
+         "(one at a time or as a short list), then log each answer in .claude/DECISIONS.md + .claude/SPEC.md "
          "and update .claude/TODO.md / the proposal table."]
 if questions:
     lines.append("Open questions (.claude/TODO.md):")

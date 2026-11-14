@@ -38,8 +38,8 @@ ul{margin:6px 0 6px 20px;padding:0}
 <body>
 <main>
 <h1>rp417 — block diagram &amp; pin plan</h1>
-<p class="sub">CH32H417QEU6 test board supervised by an RP2350 · rev A · proposals P1–P3 · updated 2026-11-13 · source of truth: <code>SPEC.md</code>, <code>DECISIONS.md</code></p>
-<p><span class="tag d">decided</span> = logged in DECISIONS.md &nbsp; <span class="tag p">proposed</span> = new in this document, awaiting approval &nbsp; <span class="tag w">withdrawn</span> = replaced by a later proposal</p>
+<p class="sub">CH32H417QEU6 test board supervised by an RP2350 · rev A · proposals P1–P3 · updated 2026-11-13 · source of truth: <code>.claude/SPEC.md</code>, <code>.claude/DECISIONS.md</code></p>
+<p><span class="tag d">decided</span> = logged in .claude/DECISIONS.md &nbsp; <span class="tag p">proposed</span> = new in this document, awaiting approval &nbsp; <span class="tag w">withdrawn</span> = replaced by a later proposal</p>
 <p><b>Rev A, redrawn 2026-11-13</b> for D22–D48 (minimal BOM). Parts list and area budget: §8–§9.</p>
 <div class="note"><b>Status 2026-11-13.</b> Architecture, pin plans and part selection decided (D01–D56); MCU = CH32H417MEU6 QFN88 (D54), 2:1 capture switch back (D55). Parts on both sides where it helps (D48).
 Still open: CH32H417QEU6 (user-sourced, D43) — consign to JLC or hand-solder. <b>Status:</b> schematic generated in <code>hw/</code> (ERC 0); draft layout autorouted (see <code>hw/README.md</code>).
@@ -269,7 +269,7 @@ flowchart LR
 </tbody></table></div>
 <p>No bus switches (D29): the RP2350 is always powered, so the only back-feed direction is RP → CH32. Power-off sequence in RP firmware: tri-state GPIO0–36 and 42, disable Si5351 CLK0–2, assert NRST, then drop PWR_EN; check GPIO40 reads ≈ 0 V. Series resistors only limit clamp current if firmware misbehaves.</p>
 
-<h2 id="props">7. New proposals in this document (to approve → DECISIONS.md)</h2>
+<h2 id="props">7. New proposals in this document (to approve → .claude/DECISIONS.md)</h2>
 <div class="tbl"><table>
 <thead><tr><th>ID</th><th>Proposal</th><th>Why</th></tr></thead>
 <tbody>
