@@ -377,6 +377,115 @@ zone(pcbnew.In3_Cu, "+3V3", [(0.3, 45), (W - 0.3, 45), (W - 0.3, H - 0.3), (0.3,
 zone(pcbnew.F_Cu, "GND", full)
 zone(pcbnew.B_Cu, "GND", full)
 
+# ------------------------------------------------------------------ plane fan-out (D60)
+# Dogbone: every SMD pad on a plane net gets a locked 0.4/0.2 via + 0.25 mm stub, placed outward from
+# the footprint centre (then sideways, then inward) at the first spot clear of other-net copper.
+# Exposed pads (U1, U2) get a grid of vias inside the pad instead. Pads over the wrong half of the
+# In3 split are left to the router. Freerouting keeps locked vias/tracks as fixed wiring.
+PLANE_REGION = {"GND": lambda y: True,
+                "+3V3_CH": lambda y: y < 43.5,          # In3 +3V3_CH: y 0.3..44
+                "+3V3": lambda y: y > 45.5}             # In3 +3V3:    y 45..H
+VIA_D, VIA_DR, STUB_W, GAP = 0.4, 0.2, 0.25, 0.15
+EP_MIN_MM2, EP_PITCH = 4.0, 1.1
+
+
+def xy_mm(p):
+    return pcbnew.ToMM(p.x), pcbnew.ToMM(p.y)
+
+
+obst = []          # (netname, x0, y0, x1, y1, layers-set) rectangles in mm, board coords
+for fp in fps.values():
+    for pd in fp.Pads():
+        bb = pd.GetBoundingBox()
+        x0, y0 = xy_mm(bb.GetOrigin()); x1, y1 = xy_mm(bb.GetEnd())
+        obst.append((pd.GetNetname(), x0, y0, x1, y1, pd.IsOnLayer(pcbnew.F_Cu), pd.IsOnLayer(pcbnew.B_Cu),
+                     pd.GetAttribute() in (pcbnew.PAD_ATTRIB_PTH, pcbnew.PAD_ATTRIB_NPTH)))
+vias_placed = []   # (net, x, y)
+
+
+def rect_dist(x, y, r):
+    dx = max(r[1] - x, 0, x - r[3]); dy = max(r[2] - y, 0, y - r[4])
+    return math.hypot(dx, dy)
+
+
+def clear(net, x, y, rad, front, back, through):
+    if not (OX + 0.8 < x < OX + W - 0.8 and OY + 0.8 < y < OY + H - 0.8):
+        return False
+    for o in obst:
+        if o[0] == net and not o[7]:
+            continue
+        hits = through or o[7] or (front and o[5]) or (back and o[6])
+        if hits and rect_dist(x, y, o) < rad + (0.25 if o[7] and o[0] != net else GAP):
+            return False
+    return all(math.hypot(x - vx, y - vy) >= VIA_D + GAP for _, vx, vy in vias_placed)
+
+
+def add_via(net, x, y):
+    v = pcbnew.PCB_VIA(board)
+    v.SetPosition(pcbnew.VECTOR2I(MM(x), MM(y)))
+    v.SetWidth(MM(VIA_D)); v.SetDrill(MM(VIA_DR)); v.SetNet(netinfo[net]); v.SetLocked(True)
+    board.Add(v); vias_placed.append((net, x, y))
+
+
+def add_stub(net, layer, a, b):
+    t = pcbnew.PCB_TRACK(board)
+    t.SetStart(pcbnew.VECTOR2I(MM(a[0]), MM(a[1]))); t.SetEnd(pcbnew.VECTOR2I(MM(b[0]), MM(b[1])))
+    t.SetWidth(MM(STUB_W)); t.SetLayer(layer); t.SetNet(netinfo[net]); t.SetLocked(True)
+    board.Add(t)
+
+
+fan = {"dogbone": 0, "ep_vias": 0, "wrong_half": [], "no_room": []}
+for fp in fps.values():
+    cx, cy = xy_mm(fp.GetPosition())
+    for pd in fp.Pads():
+        net = pd.GetNetname()
+        if net not in PLANE_REGION or pd.GetAttribute() != pcbnew.PAD_ATTRIB_SMD:
+            continue
+        px, py = xy_mm(pd.GetPosition())
+        tag = f"{fp.GetReference()}.{pd.GetNumber()}"
+        if not PLANE_REGION[net](py - OY):
+            fan["wrong_half"].append(tag); continue
+        front = pd.IsOnLayer(pcbnew.F_Cu)
+        layer = pcbnew.F_Cu if front else pcbnew.B_Cu
+        bb = pd.GetBoundingBox()
+        x0, y0 = xy_mm(bb.GetOrigin()); x1, y1 = xy_mm(bb.GetEnd())
+        if (x1 - x0) * (y1 - y0) >= EP_MIN_MM2:            # exposed pad: via grid inside it
+            nx = max(1, int((x1 - x0 - 0.6) / EP_PITCH) + 1); ny = max(1, int((y1 - y0 - 0.6) / EP_PITCH) + 1)
+            for i in range(nx):
+                for j in range(ny):
+                    vx = (x0 + x1) / 2 + (i - (nx - 1) / 2) * EP_PITCH
+                    vy = (y0 + y1) / 2 + (j - (ny - 1) / 2) * EP_PITCH
+                    if clear(net, vx, vy, VIA_D / 2, True, True, True):
+                        add_via(net, vx, vy); fan["ep_vias"] += 1
+            continue
+        ux, uy = px - cx, py - cy
+        n = math.hypot(ux, uy)
+        ux, uy = (ux / n, uy / n) if n > 1e-3 else (1.0, 0.0)
+        dirs = [(ux, uy), (-uy, ux), (uy, -ux), (-ux, -uy)]
+        dirs += [((a + b) / math.sqrt(2), (c + d) / math.sqrt(2))
+                 for (a, c), (b, d) in ((dirs[0], dirs[1]), (dirs[0], dirs[2]))]
+        done = False
+        for dx, dy in dirs:
+            half = abs(dx) * (x1 - x0) / 2 + abs(dy) * (y1 - y0) / 2
+            for extra in (0.0, 0.2, 0.4, 0.7):
+                d = half + VIA_D / 2 + GAP + extra
+                vx, vy = px + dx * d, py + dy * d
+                if not clear(net, vx, vy, VIA_D / 2, True, True, True):
+                    continue
+                # stub must clear other-net pads on its layer (sampled)
+                if not all(clear(net, px + dx * s, py + dy * s, STUB_W / 2, front, not front, False)
+                           or s < half for s in [half + k * 0.1 for k in range(int((d - half) / 0.1) + 1)]):
+                    continue
+                add_stub(net, layer, (px, py), (vx, vy)); add_via(net, vx, vy)
+                fan["dogbone"] += 1; done = True
+                break
+            if done:
+                break
+        if not done:
+            fan["no_room"].append(tag)
+print(f"fan-out: {fan['dogbone']} dogbones, {fan['ep_vias']} EP vias, "
+      f"wrong half {fan['wrong_half']}, no room {len(fan['no_room'])}: {fan['no_room']}")
+
 out = os.path.join(BUILD, "rp417_placed.kicad_pcb")
 import shutil; shutil.copy(os.path.join(HW, "rp417.kicad_pro"), os.path.join(BUILD, "rp417_placed.kicad_pro"))
 board.Save(out)

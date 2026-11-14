@@ -188,6 +188,9 @@ Decided 2026-11-12:
 - **Sourcing snapshot 2026-11-13** (JLC parts API, §8 of the design page): **CH32H417QEU6 = 0 stock at JLC** (C49363240) →
   **user-sourced** (D43), **consigned to JLC for assembly** (D58). Thin stock: RP2354B (524), RP2350 SMPS inductor AOTA-B201610S3R3 (143). ADC10065 is DNP (D42; LCSC has 4 + 30).
   Almost every IC/connector is an Extended part. Part selection = design page §8 (D47); genuine Si5351A-B-GTR (D46).
+- **Plane fan-out (D60):** dogbone via (0.4/0.2 mm, 0.25 mm stub) on every SMD pad of GND / +3V3 / +3V3_CH,
+  generated before routing; via grid inside the U1/U2 exposed pads (unfilled vias in an EP can wick solder; check
+  JLC's stencil/EP recommendation before fab). Pads over the wrong half of the In3 split (U9 out, C10, C75, R4, U4.10, C16) are routed.
 - **DRC waiver (D59):** `hole_clearance` and `annular_width` errors whose items all sit inside the J1–J3 USB connector
   footprints (LCSC library geometry: GND shell/pin pads vs the footprint's own NPTH pegs; J1 shell pad 25 ring) are waived in
   `hw/gen/finish.py` (21 on the D57 placement). Re-check against the connector drawings before fab.
