@@ -11,6 +11,7 @@ Everything here is **generated**. Edit the generators in `gen/`, not the KiCad f
 | `lib/lcsc.*` | Symbols/footprints imported from LCSC with easyeda2kicad (pins re-typed to passive). |
 | `lib/lcsc.3dshapes/` | 3D models from LCSC (easyeda2kicad `--3d`). Only the `.wrl` files are committed (5 MB, used by the 3D viewer and renders); the `.step` files (32 MB, needed for STEP export) are gitignored — refetch with `.venv/bin/easyeda2kicad --lcsc_id <C…> --3d --output hw/lib/lcsc`. Models are referenced as `${KIPRJMOD}/lib/lcsc.3dshapes/…`. |
 | `renders/` | 3D views (top, bottom, angled) from `kicad-cli pcb render`. |
+| `gen/gen_site.py` | GitHub Pages material: copies the renders to `docs/images/`, plots the 6 copper layers + assembly views, writes `docs/pinmap.md` (from the netlist) and `docs/bom.md` (from `production/bom.csv`). Re-run after board/BOM changes. |
 | `rp417.kicad_pro` | Design rules + net classes (Default 0.1/0.1 mm, via 0.4/0.2; Power 0.4 mm). |
 
 ## Rebuild

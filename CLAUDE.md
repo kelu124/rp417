@@ -15,6 +15,8 @@ CH32H417 for automated limit testing (USB3, parallel ADC capture, internal ADCs,
 - `projects/` — cloned CH32H417 reference repos (hardware/sdk/firmware/tools). List + rationale in
   `projects/README.md`; clones are gitignored, recreate with `projects/clone.sh`. Grep them for
   pinouts, USB3/UHSIF/DVP examples before designing a block.
+- `docs/` — GitHub Pages site (https://kelu124.github.io/rp417/), same template as kelu124/rp569. Regenerate
+  images, `pinmap.md` and `bom.md` with `hw/gen/gen_site.py` after board/BOM changes; keep the prose pages in sync.
 - `.claude/TODO.md` — open actions and open questions.
 - `.claude/DONE.md` — completed actions (move items from TODO, with date).
 - `.claude/commits.md` — one entry per commit: date, short hash, what and why.

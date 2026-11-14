@@ -1,0 +1,11 @@
+# GitHub Pages site, served from the docs/ folder of main (Settings → Pages → Deploy from a branch → main /docs)
+title: rp417
+description: RP2354B × CH32H417 — a test board on which an RP2350 supervises, programs and stimulates a CH32H417
+theme: jekyll-theme-cayman
+markdown: kramdown
+# GitHub Pages enables these by default; listed so a local `jekyll serve` behaves the same
+plugins:
+  - jekyll-optional-front-matter   # the .md pages have no front matter
+  - jekyll-relative-links           # links to other .md files become page links
+  - jekyll-readme-index             # images/README.md becomes the images/ index
+  - jekyll-titles-from-headings
