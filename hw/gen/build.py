@@ -62,7 +62,27 @@ def nref(prefix):
     return f"{prefix}{counter[prefix]}"
 
 
+# D68: JLC part numbers for standard passives (basic unless noted; checked 2026-11-14 via jlcsearch/LCSC).
+# Resistors 0402 1% thick film; caps X5R/X7R (C0G for pF), >=10 V on the VBUS/5 V rails.
+LCSC_STD = {
+    ("R0402", "0"): "C17168", ("R0402", "22"): "C25092", ("R0402", "27"): "C25100",   # 27R extended
+    ("R0402", "33"): "C25105", ("R0402", "49.9"): "C25120", ("R0402", "100"): "C25076",
+    ("R0402", "220"): "C25091", ("R0402", "330"): "C25104", ("R0402", "1k"): "C11702",
+    ("R0402", "4.7k"): "C25900", ("R0402", "5.1k"): "C25905", ("R0402", "10k"): "C25744",
+    ("R0402", "22k"): "C25768", ("R0402", "47k"): "C25792", ("R0402", "56k"): "C25796",  # 56k preferred
+    ("R0402", "100k"): "C25741",
+    ("C0402", "15p"): "C1548", ("C0402", "18p"): "C1549", ("C0402", "68p"): "C14441",       # 68p preferred
+    ("C0402", "220p"): "C1513258",                                                       # extended, C0G
+    ("C0402", "1n"): "C1523", ("C0402", "100n"): "C307331", ("C0402", "1u"): "C52923",     # 1u 25 V
+    ("C0402", "2.2u"): "C12530", ("C0603", "4.7u"): "C19666", ("C0603", "10u"): "C96446",  # 10u 25 V
+    ("C0805", "22u"): "C45783",
+}
+FP_KEY = {v: k for k, v in FP.items()}
+
+
 def two(sym, prefix, value, fp, a, b, lcsc="", dnp=False, mpn=""):
+    if not lcsc:
+        lcsc = LCSC_STD.get((FP_KEY.get(fp), value), "")
     return cur.add(Part(nref(prefix), S[sym], value, fp, {"1": a, "2": b}, lcsc=lcsc, dnp=dnp, mpn=mpn))
 
 
@@ -116,7 +136,7 @@ ic("U8", "TLV", "TLV62569DBVR", "Package_TO_SOT_SMD:SOT-23-5",
 C("10u", "+5V_SYS")
 Lx("2.2u", "BUCK_SW", "+3V3", fp="L1008", lcsc="C576403", mpn="DFE252012F-2R2M=P2")
 R("100k", "+3V3", "BUCK_FB")
-R("22.1k", "BUCK_FB", "GND")
+R("22k", "BUCK_FB", "GND")                       # D68: 22k basic (was 22.1k) -> 3.327 V
 C("22u", "+3V3")
 C("22u", "+3V3")
 # CH32 domain load switch (D25, D15 default ON via pull-up)
@@ -141,7 +161,7 @@ C("100n", "ADC_VSYS")
 for n in ("GND", "+5V_SYS", "+3V3", "+3V3_CH", "+3V3A_CH"):
     flag(n)
 for i in range(4):
-    cur.add(Part(f"H{i + 1}", S["HOLE"], "M3", "MountingHole:MountingHole_3.2mm_M3", {}))
+    cur.add(Part(f"H{i + 1}", S["HOLE"], "M3", "MountingHole:MountingHole_3.2mm_M3", {})).in_bom = False
 
 # =================================================================== 2. USB
 sheet("usb", "USB + ESD", "A2")
@@ -308,17 +328,17 @@ R("0", "SI_CLK1", "SI_PCLK")       # P4-1/D57: 0R, switch Ioff isolates
 # generator (D33): 50R source, 5th-order Butterworth C-L-C-L-C, fc 30 MHz, 50R load
 R("49.9", "SI_CLK2", "LPF_IN")
 C("68p", "LPF_IN")
-Lx("430n", "LPF_IN", "LPF_MID", lcsc="", mpn="LQW18ANR43G00D")
+Lx("470n", "LPF_IN", "LPF_MID", lcsc="C113132", mpn="LQW18ANR47G00D")   # D68: 430n not stocked at JLC
 C("220p", "LPF_MID")
-Lx("430n", "LPF_MID", "GEN_OUT", mpn="LQW18ANR43G00D")
+Lx("470n", "LPF_MID", "GEN_OUT", lcsc="C113132", mpn="LQW18ANR47G00D")
 C("68p", "GEN_OUT")
 R("49.9", "GEN_OUT", "GND")
 # input-select header (D34): 1 GEN, 2 ADC_IN, 3 EXT, 4 GND
 ic("J5", "HDR4", "1x04 GEN/ADC_IN/EXT/GND", "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical",
-   by_num={"1": "GEN_OUT", "2": "ADC_IN", "3": "EXT_IN", "4": "GND"})
+   by_num={"1": "GEN_OUT", "2": "ADC_IN", "3": "EXT_IN", "4": "GND"}, dnp=True)   # D68: 2.54 headers DNP
 R("49.9", "EXT_IN", "GND")                       # external source termination
 ic("D5", "BAT54S", "BAT54S", "Package_TO_SOT_SMD:SOT-23",
-   by_name={"A": "GND", "K": "+3V3", "COM": "ADC_IN"})   # clamp to always-on rail
+   by_name={"A": "GND", "K": "+3V3", "COM": "ADC_IN"}, lcsc="C8592")   # clamp to always-on rail
 # ADC10065 path (D30, D33, D44): AC couple, bias to VCOM, VIN- = VCOM
 R("100", "ADC_IN", "ADC_AC")
 C("100n", "ADC_AC", "ADC_VINP")
@@ -339,7 +359,7 @@ for i in range(10):                              # series R at the ADC outputs
     R("22", f"ADC_DO{i}", f"ADC_D{i}")   # D57
 # IRS: 3-way solder jumper, default 1-2 = VDDA = 2 Vpp (D44)
 ic("JP1", "JP3", "IRS 2/1.5/1 Vpp", "Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm",
-   by_name={"A": "+3V3A_CH", "C": "ADC_IRS", "B": "GND"})
+   by_name={"A": "+3V3A_CH", "C": "ADC_IRS", "B": "GND"}).in_bom = False   # copper jumper, not a part
 # CH32 ADC/HSADC feed (D35): series R, AC, mid-rail bias
 R("100", "ADC_IN", "CH_AIN_AC")
 C("100n", "CH_AIN_AC", "CH_AIN0")
@@ -410,8 +430,8 @@ R("330", "LED_CH_B", "LED_CH_BK")                  # D63, appended last -> R91
 # J6 2x2 2.54 mm: 1 PC1 (HSADC_IN1, via 100R, D65) | 2 GND / 3 PC3 (HSADC_IN3, via 100R) | 4 GEN_OUT.
 # Jumper 1-3 = HSADC_IN1 + IN3 tied; jumper 3-4 = raw generator into PC3; 1-2 = IN1 grounded.
 cur = sheets["analog"]
-ic("J6", "HDR2X2", "2x02 AIN0/GND/AIN3/GEN", "Connector_PinHeader_2.54mm:PinHeader_2x02_P2.54mm_Vertical",
-   by_num={"1": "AIN1_HDR", "2": "GND", "3": "AIN3_HDR", "4": "GEN_OUT"})
+ic("J6", "HDR2X2", "2x02 AIN1/GND/AIN3/GEN", "Connector_PinHeader_2.54mm:PinHeader_2x02_P2.54mm_Vertical",
+   by_num={"1": "AIN1_HDR", "2": "GND", "3": "AIN3_HDR", "4": "GEN_OUT"}, dnp=True)
 R("100", "AIN3_HDR", "CH_AIN3")                   # limits back-feed into PC3 with the CH32 off (D29) -> R92
 R("100", "AIN1_HDR", "CH_AIN1")                   # D65, same for PC1 -> R93
 
@@ -421,7 +441,7 @@ R("100", "AIN1_HDR", "CH_AIN1")                   # D65, same for PC1 -> R93
 # GPIO1/GPIO2 not connected: no free RP GPIO left (SWD and QSPI pins excluded).
 cur = sheets["rp"]
 ic("J7", "HDR2X3", "SAO 2x03 VCC/GND/SDA/SCL", "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical",
-   by_num={"1": "+3V3", "2": "GND", "3": "SAO_SDA", "4": "SAO_SCL", "5": None, "6": None})
+   by_num={"1": "+3V3", "2": "GND", "3": "SAO_SDA", "4": "SAO_SCL", "5": None, "6": None}, dnp=True)
 R("4.7k", "+3V3", "SAO_SDA")                      # -> R94
 R("4.7k", "+3V3", "SAO_SCL")                      # -> R95
 

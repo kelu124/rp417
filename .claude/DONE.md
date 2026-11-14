@@ -20,3 +20,4 @@
 - 2026-11-13 — RM checks: QSPI master-only (ch. 37) ✅; per-pin AF mux, input-mode pins not on AF inputs (§9.2) ✅; DVP JPEG mode with static HSYNC (§29) ✅ on paper
 - 2026-11-13 — CH32 LDO heat estimate (≈ 0.4 W LDO, 0.75 W chip); parts list with JLC stock (§8); area budget ≈ 34 % of one side (§9)
 - 2026-11-13 — Open question closed: U1 consigned to JLC (D58)
+- 2026-11-14 — LCSC numbers assigned to all BOM lines; fields synced onto the board (D68)

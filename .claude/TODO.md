@@ -8,13 +8,12 @@
 
 ## Design
 - [ ] Verify pinouts taken from datasheets/LCSC: TPS22918, ADC10065 D0–D9 order, TF-01A CD pin 9, SN74CBTLV3257
-- [ ] Assign JLC Basic LCSC numbers to 0402 passives — **blocks JLC order**: hw/production/bom.csv (2026-11-14) has 39/54 lines with no LCSC #
-- [ ] Copy LCSC fields onto PCB footprints (Update PCB from Schematic → footprint fields), then regenerate the production BOM — U5/U8/U9/L1/L2/FB1 have LCSC # in the schematic but not in the BOM
+- [ ] Regenerate hw/production/ (BOM/CPL/Gerbers) after D68 — the committed files predate it
 - [ ] KiCad schematic rev A (from design page §1–§8), then placement + routing
 - [ ] Hardware: JPEG-mode continuous DVP capture with static HSYNC is gapless (D37; RM supports it)
 - [ ] Hardware: measure CH32 temperature at full USB3 load (D25; estimate +20–25 °C)
 - [ ] Order/reserve early: RP2354B, AOTA-B201610S3R3 inductor (thin JLC stock)
-- [ ] LC filter values (5th order, fc ≈ 30 MHz, 50 Ω)
+- [ ] LC filter values (5th order, fc ≈ 30 MHz, 50 Ω) — L now 470 nH (D68): re-check C values / corner on the bench
 - [ ] Compare LCSC QFN88 footprint with WCH drawing
 - [ ] Bench-check Si5351 → LC filter amplitude into ADC10065 (P2-2)
 - [ ] RP2350 funprog port (funprog_port.h, bitbang_rvswdio.h — PIO?) + USB HID interface compatible with minichlink pgm-esp32s2-ch32xx

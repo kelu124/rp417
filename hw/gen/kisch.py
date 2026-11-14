@@ -108,6 +108,7 @@ class Part:
         self.ref, self.sym, self.value, self.fp = ref, sym, value, fp
         self.conns = conns  # pin number -> net name, or None for NC
         self.lcsc, self.dnp, self.mpn = lcsc, dnp, mpn
+        self.in_bom = True   # D68: False for mounting holes / solder jumpers
         missing = [p[0] for p in sym.pins if p[0] not in conns]
         if missing:
             raise ValueError(f"{ref}: unassigned pins {missing}")
@@ -202,7 +203,7 @@ class Sheet:
                      for k, v, px, py, hid in props)
         pins = ''.join(f'(pin {q(n)} (uuid {q(U())}))' for (n, *_r) in s.pins)
         return (f'(symbol (lib_id {q(s.lib + ":" + s.name)}) (at {fmt(X)} {fmt(Y)} 0) (unit 1) '
-                f'(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp {"yes" if p.dnp else "no"}) '
+                f'(exclude_from_sim no) (in_bom {"yes" if p.in_bom else "no"}) (on_board yes) (dnp {"yes" if p.dnp else "no"}) '
                 f'(fields_autoplaced yes) (uuid {q(U())}) {pr} {pins} '
                 f'(instances (project {q(project)} (path {q("/" + root_uuid + "/" + self.sheet_uuid)} '
                 f'(reference {q(p.ref)}) (unit 1)))))')
