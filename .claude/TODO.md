@@ -8,7 +8,8 @@
 
 ## Design
 - [ ] Verify pinouts taken from datasheets/LCSC: TPS22918, ADC10065 D0–D9 order, TF-01A CD pin 9, SN74CBTLV3257
-- [ ] Assign JLC Basic LCSC numbers to 0402 passives
+- [ ] Assign JLC Basic LCSC numbers to 0402 passives — **blocks JLC order**: hw/production/bom.csv (2026-11-14) has 39/54 lines with no LCSC #
+- [ ] Copy LCSC fields onto PCB footprints (Update PCB from Schematic → footprint fields), then regenerate the production BOM — U5/U8/U9/L1/L2/FB1 have LCSC # in the schematic but not in the BOM
 - [ ] KiCad schematic rev A (from design page §1–§8), then placement + routing
 - [ ] Hardware: JPEG-mode continuous DVP capture with static HSYNC is gapless (D37; RM supports it)
 - [ ] Hardware: measure CH32 temperature at full USB3 load (D25; estimate +20–25 °C)
