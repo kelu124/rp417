@@ -10,3 +10,11 @@ hw/build/
 .venv/
 hw/lib/lcsc.3dshapes/*.step
 *.lck
+
+# Firmware build outputs
+fw/rp/build/
+fw/ch32/*.elf
+fw/ch32/*.bin
+fw/ch32/*.hex
+fw/ch32/*.lst
+fw/ch32/*.map

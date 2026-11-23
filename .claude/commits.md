@@ -41,4 +41,5 @@
 | 2026-11-14 | ac25618 | D68 BOM: LCSC numbers for all parts, R2 22k, L3/L4 470n, headers DNP, holes/jumper out of BOM, fields synced to board (parity 0); D69 licenses logged |
 | 2026-11-14 | f3b56d8 | Cleanup: DECISIONS.md, SPEC.md and userinputs/ moved into .claude/; references updated (CLAUDE.md, README, hook, design page, build.py note) |
 | 2026-11-14 | 992f7ff | Production files regenerated after D68 (BOM 51 lines/207 parts, all LCSC; DNP headers out), board label RP417 v1.0, renders regenerated |
-| 2026-11-14 | (this commit) | D70: GitHub Pages site in docs/ (rp569 template), hw/gen/gen_site.py (images, pin map, BOM page) |
+| 2026-11-14 | b3f34ce | D70: GitHub Pages site in docs/ (rp569 template), hw/gen/gen_site.py (images, pin map, BOM page) |
+| 2026-11-23 | (this commit) | D71 firmware v0.1: fw/rp (RP2354B supervisor: console, CH32 UART bridge, funprog HID programmer, Si5351, selftest) + fw/ch32 (ch32fun bring-up, UART protocol in fw/PROTOCOL.md); rev B TODOs (USB ISP on J2 = USB BOOT button proposal, SWIO pull-up); SPEC §4 USB-ISP claim corrected, §9a firmware; stale PB6/PB7 TODO fixed |

@@ -22,3 +22,4 @@
 - 2026-11-13 — Open question closed: U1 consigned to JLC (D58)
 - 2026-11-14 — LCSC numbers assigned to all BOM lines; fields synced onto the board (D68)
 - 2026-11-14 — Production files regenerated after D68 (user); renders regenerated
+- 2026-11-23 — Firmware v0.1 written (D71): fw/rp (supervisor, console, CDC bridge, funprog HID programmer, selftest) and fw/ch32 (ch32fun, UART protocol); both build, not hardware-tested

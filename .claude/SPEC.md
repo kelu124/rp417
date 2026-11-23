@@ -96,10 +96,12 @@ Claims from `.claude/userinputs/tocheck.md` — checked:
   the test-control interface. ch32fun included as a git submodule.
 - Wiring: SWIO/SWDIO = PB9, SWCLK = PB8 (shared with USBHS — via the USB switch, §5), plus NRST.
 - ⚠️ To verify on hardware: funprog + H41x flash path (minichlink lists the chip, no H417 report seen yet).
+- Implemented in `fw/rp` v0.1 (D71, §9a): `minichlink -c 0x12090001 -C funprog -w fw.bin flash -b`.
 
 **Fallback: bootloader ISP** (no debugger needed) — RP2350 power-cycles the CH32 and talks the WCH
-UART ISP protocol on PA9/PA10 (QFN88, D54), or forces USBFS DP high at power-on for USB ISP (note: `wchisp` has
-no H41x device file yet; WCHISPTool does support it).
+UART ISP protocol on PA9/PA10 (QFN88, D54). USB ISP on J2 (PA11/PA12) works only on a blank chip in rev A:
+nothing on the board can hold DP (PA12) high at power-on (no pull-up, no RP GPIO on `J2_DP`) — rev B fix proposed in
+.claude/TODO.md (USB BOOT button). (`wchisp` has no H41x device file yet; WCHISPTool does support it.)
 
 ## 5. USB
 
@@ -206,6 +208,20 @@ Decided 2026-11-12:
 - **DRC waiver (D59):** `hole_clearance` and `annular_width` errors whose items all sit inside the J1–J3 USB connector
   footprints (LCSC library geometry: GND shell/pin pads vs the footprint's own NPTH pegs; J1 shell pad 25 ring) are waived in
   `hw/gen/finish.py` (21 on the D57 placement). Re-check against the connector drawings before fab.
+
+## 9a. Firmware (D71) — v0.1 written, not hardware-tested
+
+- `fw/ch32` (ch32fun, V3F only): HSE 25 MHz → PLL 400 MHz, USART1 PA9/PA10 115200 command protocol (`fw/PROTOCOL.md`),
+  green heartbeat on D7, MCO = HSE on PB0, LOGIC0..7 / HSYNC / VSYNC / MARK / SD_CD access. All RP-facing pins are inputs
+  after reset (D29). ch32fun's UART printf is not used: on H41x it also drives PA12 (= J2_DP) as USART6 TX.
+- `fw/rp` (pico-sdk 2.1, RP2354B board header `fw/rp/boards/rp417.h`): boots into the D15 defaults, USB composite
+  (CDC0 console, CDC1 CH32 UART bridge, HID funprog programmer), D29 power-off sequence with rail check on the ADC,
+  Si5351 driver (CLK0/1 PLLA, CLK2 PLLB), PIO edge counter (GPIO base 16), `selftest`.
+- ⚠️ Rev A has **no pull-up on SWIO_RP** (only U2.44 + U4.4): 1-wire SWIO normally wants ≈ 1 kΩ (pico-rvd README).
+  Firmware falls back to 2-wire RVSWD (funprog tries SWIO then RVSWD) and precharges the line for 1-wire reads.
+  Rev B fix in `.claude/TODO.md`.
+- I2C0 is shared by MGMT (GPIO4/5, Si5351) and the SAO header (GPIO44/45, D66): same RP2350 controller
+  (GPIO n mod 4 = 0/1 → I2C0), so the SAO needs PIO I2C or time-multiplexing. Not used in v0.1.
 
 ## 10. Open questions
 

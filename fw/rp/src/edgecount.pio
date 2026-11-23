@@ -1,0 +1,7 @@
+; Rising-edge counter: X counts down once per rising edge on the 'wait' pin (IN base).
+; 3 instructions per period -> up to clk_sys/3 (50 MHz at 150 MHz) for a ~50 % duty input.
+.program edgecount
+start:
+    wait 0 pin 0
+    wait 1 pin 0
+    jmp x-- start
